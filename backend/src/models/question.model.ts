@@ -4,7 +4,7 @@ import { getDbConnection } from '../database/mssql.database';
 export const createQuestion = async (
 	question: string,
 	answer: string,
-	topicId: string
+	topicId: number
 ) => {
 	const pool = await getDbConnection();
 	const result = await pool
@@ -24,7 +24,7 @@ export const updateQuestion = async (
 	id: string,
 	question: string,
 	answer: string,
-	topicId: string
+	topicId: number
 ) => {
 	const pool = await getDbConnection();
 	const result = await pool

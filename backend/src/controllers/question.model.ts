@@ -12,7 +12,7 @@ const questionIdSchema = z.object({ id: z.string().uuid() });
 const questionCreateSchema = z.object({
 	question: z.string(),
 	answer: z.string(),
-	topicId: z.string().uuid(),
+	topicId: z.number(),
 });
 
 export const createQuestionController = async (

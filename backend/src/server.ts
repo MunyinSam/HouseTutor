@@ -26,7 +26,7 @@ app.get('/health', (_req, res) => res.json({ ok: true }));
 const apiV1 = express.Router();
 
 apiV1.use('/topic', topicRouter);
-apiV1.use('question', questionRouter);
+apiV1.use('/question', questionRouter);
 
 app.use('/api/v1', apiV1);
 
