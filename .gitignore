@@ -34,3 +34,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.DS_Store
+.env
+mssql
+/node_modules/
+/package-lock.json
+/package.json
+
+# n8n data (contains database, credentials, execution history)
+n8n/data/
