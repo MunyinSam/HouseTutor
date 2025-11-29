@@ -27,8 +27,8 @@ export function Navbar() {
 						<span className="font-bold">House Tutor</span>
 					</Link>
 				</div>
-				<div className="flex-1 flex items-center justify-center">
-					<nav className="flex items-center space-x-6 text-sm font-medium">
+				<div className="flex-1 flex items-center">
+					<nav className="flex w-full justify-center items-center space-x-6 text-sm font-medium">
 						<Link
 							href="/blocks"
 							className="transition-colors hover:text-foreground/80 text-foreground/60"
