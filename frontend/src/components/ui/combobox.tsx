@@ -39,6 +39,12 @@ export function Combobox({
 	className,
 }: ComboboxProps) {
 	const [open, setOpen] = React.useState(false);
+	const [search, setSearch] = React.useState('');
+
+	// Filter options based on search
+	const filteredOptions = options.filter((option) =>
+		option.label.toLowerCase().includes(search.toLowerCase())
+	);
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
@@ -58,11 +64,15 @@ export function Combobox({
 			</PopoverTrigger>
 			<PopoverContent className="w-full min-w-[200px] p-0">
 				<Command>
-					<CommandInput placeholder={placeholder} />
+					<CommandInput
+						placeholder={placeholder}
+						value={search}
+						onValueChange={setSearch}
+					/>
 					<CommandList>
 						<CommandEmpty>No options found.</CommandEmpty>
 						<CommandGroup>
-							{options.map((option) => (
+							{filteredOptions.map((option) => (
 								<CommandItem
 									key={option.value}
 									value={option.value}

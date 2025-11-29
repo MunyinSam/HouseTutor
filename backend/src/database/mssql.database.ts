@@ -1,33 +1,12 @@
-import sql from 'mssql';
+import { Pool } from 'pg';
 import '../config/env';
 
-const sqlConfig = {
-	user: process.env.SQL_USER ?? '',
-	password: process.env.SQL_PASSWORD ?? '',
-	server: process.env.SQL_SERVER ?? '',
-	database: process.env.SQL_NAME ?? '',
-	port: process.env.SQL_PORT ? Number(process.env.SQL_PORT) : 1433,
-	requestTimeout: 60000,
-	pool: {
-		max: 10,
-		min: 0,
-		idleTimeoutMillis: 30000,
-	},
-	options: {
-		encrypt: false,
-		enableArithAbort: true,
-		trustServerCertificate: true,
-		connectTimeout: 5000,
-	},
-};
+const pool = new Pool({
+	user: process.env.POSTGRES_USER ?? '',
+	password: process.env.POSTGRES_PASSWORD ?? '',
+	host: process.env.POSTGRES_HOST ?? 'localhost',
+	database: process.env.POSTGRES_DB ?? '',
+	port: process.env.POSTGRES_PORT ? Number(process.env.POSTGRES_PORT) : 5432,
+});
 
-let pool: sql.ConnectionPool;
-
-const getDbConnection = async (): Promise<sql.ConnectionPool> => {
-	if (!pool) {
-		pool = await sql.connect(sqlConfig);
-	}
-	return pool;
-};
-
-export { getDbConnection };
+export const getDbConnection = async () => pool;

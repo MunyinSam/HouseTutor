@@ -44,3 +44,9 @@ mssql
 
 # n8n data (contains database, credentials, execution history)
 n8n/data/
+
+postgres/
+postgres-data/
+*.sql
+*.dump
+*.backup

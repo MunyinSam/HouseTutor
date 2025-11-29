@@ -1,34 +1,19 @@
 services:
     db:
-        platform: 'linux/amd64'
-        image: mcr.microsoft.com/mssql/server:2022-latest
+        image: postgres:16
         environment:
-            ACCEPT_EULA: 'Y'
-            MSSQL_SA_PASSWORD: '${SQL_PASSWORD}'
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+            POSTGRES_DB: ${POSTGRES_DB:-housetutor}
         ports:
-            - '1433:1433'
+            - '5432:5432'
         volumes:
-            - ./mssql/data:/var/opt/mssql/data
-            - ./mssql/log:/var/opt/mssql/log
-            - ./mssql/secrets:/var/opt/mssql/secrets
+            - ./postgres/data:/var/lib/postgresql/data
         env_file:
             - path: .env
               required: true
         healthcheck:
-            test:
-                [
-                    'CMD',
-                    '/opt/mssql-tools18/bin/sqlcmd',
-                    '-S',
-                    'localhost',
-                    '-U',
-                    'sa',
-                    '-P',
-                    '${SQL_PASSWORD}',
-                    '-Q',
-                    "'SELECT 1'",
-                    '-C',
-                ]
+            test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER}']
             interval: 10s
             timeout: 5s
             retries: 5
@@ -39,8 +24,7 @@ services:
         build:
             context: ./backend
             dockerfile: Dockerfile
-        # image: xeei/kupantip-backend
-        container_name: kupantip-backend
+        container_name: housetutor-backend
         ports:
             - '${PORT:-8000}:8000'
         depends_on:
@@ -49,7 +33,6 @@ services:
         env_file:
             - path: .env
               required: true
-
         command: >
             sh -c "
               echo '--- [Backend] Database check complete. Running Prisma migrations...';
@@ -61,8 +44,7 @@ services:
         build:
             context: ./frontend
             dockerfile: Dockerfile
-        # image: xeei/kupantip-backend
-        container_name: kupantip-frontend
+        container_name: housetutor-frontend
         environment:
             - PORT=3000
         env_file:
@@ -72,22 +54,3 @@ services:
             - '3000:3000'
         depends_on:
             - backend
-
-    # n8n:
-    #     image: n8nio/n8n:latest
-    #     container_name: kupantip-n8n
-    #     ports:
-    #         - '5678:5678'
-    #     environment:
-    #         - N8N_HOST=0.0.0.0
-    #         - N8N_PORT=5678
-    #         - N8N_PROTOCOL=http
-    #         - WEBHOOK_URL=http://localhost:5678/
-    #         - GENERIC_TIMEZONE=Asia/Bangkok
-    #         - N8N_BASIC_AUTH_ACTIVE=false
-    #         - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=false
-    #         - N8N_IMPORT_CONFIG_DIR=/home/node/workflows
-    #     volumes:
-    #         - ./n8n/data:/home/node/.n8n
-    #         - ./n8n/workflows:/home/node/workflows
-    #     restart: unless-stopped

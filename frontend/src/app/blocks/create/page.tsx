@@ -6,8 +6,10 @@ import { useCreateQuestion } from '@/services/question';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Combobox } from '@/components/ui/combobox';
+import { useQueryClient } from '@tanstack/react-query';
 
 const CreateBlockPage = () => {
+	const queryClient = useQueryClient();
 	const { data: topics = [] } = useGetTopics();
 	const createTopic = useCreateTopic();
 	const createQuestion = useCreateQuestion();
@@ -20,10 +22,18 @@ const CreateBlockPage = () => {
 
 	const handleCreateTopic = async (e: React.FormEvent) => {
 		e.preventDefault();
-		createTopic.mutate({
-			name: newTopicName,
-			description: newTopicDescription,
-		});
+		createTopic.mutate(
+			{
+				name: newTopicName,
+				description: newTopicDescription,
+			},
+			{
+				onSuccess: (data) => {
+					queryClient.invalidateQueries({ queryKey: ['topics'] });
+					setSelectedTopic(data.id); // Optionally select the new topic
+				},
+			}
+		);
 		setNewTopicName('');
 		setNewTopicDescription('');
 		setCreatingNewTopic(false);

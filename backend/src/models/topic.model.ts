@@ -1,20 +1,25 @@
 import { getDbConnection } from '../database/mssql.database';
+import { Pool } from 'pg';
 
 // Create Topic
 export const createTopic = async (
 	name: string,
 	description: string | null = null
 ) => {
-	const pool = await getDbConnection();
-	const result = await pool
-		.request()
-		.input('name', name)
-		.input('description', description).query(`
-			INSERT INTO [dbo].[topics] (name, description)
-			OUTPUT INSERTED.*
-			VALUES (@name, @description)
-		`);
-	return result.recordset[0];
+	const pool: Pool = await getDbConnection();
+
+	const queryText = `
+        INSERT INTO topics (name, description)
+        VALUES ($1, $2)
+        RETURNING *;
+    `;
+
+	// Values map to $1 and $2
+	const values = [name, description];
+
+	const result = await pool.query(queryText, values);
+
+	return result.rows[0];
 };
 
 // Update Topic
@@ -23,47 +28,70 @@ export const updateTopic = async (
 	name: string,
 	description: string | null = null
 ) => {
-	const pool = await getDbConnection();
-	const result = await pool
-		.request()
-		.input('id', id)
-		.input('name', name)
-		.input('description', description).query(`
-			UPDATE [dbo].[topics]
-			SET name = @name, description = @description, updatedAt = SYSDATETIME()
-			OUTPUT INSERTED.*
-			WHERE id = @id
-		`);
-	return result.recordset[0];
+	const pool: Pool = await getDbConnection();
+
+	const queryText = `
+        UPDATE topics
+        SET 
+            name = $2, 
+            description = $3, 
+            "updatedAt" = current_timestamp
+        WHERE id = $1
+        RETURNING *;
+    `;
+
+	// Values map to $1 (id), $2 (name), $3 (description)
+	const values = [id, name, description];
+
+	const result = await pool.query(queryText, values);
+
+	return result.rows[0];
 };
 
 // Delete Topic
 export const deleteTopic = async (id: string) => {
-	const pool = await getDbConnection();
-	const result = await pool.request().input('id', id).query(`
-			DELETE FROM [dbo].[topics]
-			OUTPUT DELETED.*
-			WHERE id = @id
-		`);
-	return result.recordset[0];
+	const pool: Pool = await getDbConnection();
+
+	// PostgreSQL Query:
+	// - Uses positional parameter $1 instead of @id
+	// - Uses RETURNING * instead of OUTPUT DELETED.*
+	const queryText = `
+        DELETE FROM topics
+        WHERE id = $1
+        RETURNING *;
+    `;
+
+	const values = [id];
+
+	const result = await pool.query(queryText, values);
+
+	return result.rows[0];
 };
 
 // Get Topic by ID
 export const getTopicById = async (id: string) => {
-	const pool = await getDbConnection();
-	const result = await pool.request().input('id', id).query(`
-			SELECT * FROM [dbo].[topics]
-			WHERE id = @id
-		`);
-	return result.recordset[0];
+	const pool: Pool = await getDbConnection();
+
+	// PostgreSQL Query:
+	// - Uses positional parameter $1 instead of @id
+	const queryText = `
+        SELECT * FROM topics
+        WHERE id = $1;
+    `;
+
+	const values = [id];
+	const result = await pool.query(queryText, values);
+	return result.rows[0];
 };
 
 // Get All Topics
 export const getAllTopics = async () => {
-	const pool = await getDbConnection();
-	const result = await pool.request().query(`
-			SELECT * FROM [dbo].[topics]
-			ORDER BY createdAt DESC
-		`);
-	return result.recordset;
+	const pool: Pool = await getDbConnection();
+	const queryText = `
+        SELECT * FROM topics
+        ORDER BY "createdAt" DESC;
+    `;
+
+	const result = await pool.query(queryText);
+	return result.rows;
 };

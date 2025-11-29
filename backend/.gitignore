@@ -152,3 +152,9 @@ uploads/
 /src/generated/prisma
 
 reports/junit.xml
+
+postgres/
+postgres-data/
+*.sql
+*.dump
+*.backup

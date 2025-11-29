@@ -58,6 +58,8 @@ export const useGetTopics = () => {
 			const { data } = await instance.get('/');
 			return data;
 		},
+		refetchOnMount: true,
+		refetchOnWindowFocus: true,
 	});
 };
 
