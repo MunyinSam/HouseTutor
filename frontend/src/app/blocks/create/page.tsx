@@ -18,7 +18,6 @@ const CreateBlockPage = () => {
 	const [newTopicDescription, setNewTopicDescription] = useState('');
 	const [question, setQuestion] = useState('');
 	const [answer, setAnswer] = useState('');
-	const [creatingNewTopic, setCreatingNewTopic] = useState(false);
 
 	const handleCreateTopic = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -36,7 +35,6 @@ const CreateBlockPage = () => {
 		);
 		setNewTopicName('');
 		setNewTopicDescription('');
-		setCreatingNewTopic(false);
 	};
 
 	const handleCreateQuestion = async (e: React.FormEvent) => {
@@ -62,10 +60,12 @@ const CreateBlockPage = () => {
 						className="flex flex-col gap-3"
 					>
 						<Combobox
-							options={topics.map((t: any) => ({
-								label: t.name,
-								value: String(t.id),
-							}))}
+							options={topics.map(
+								(t: { id: number; name: string }) => ({
+									label: t.name,
+									value: String(t.id),
+								})
+							)}
 							value={
 								selectedTopic !== null
 									? String(selectedTopic)

@@ -3,7 +3,7 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY package*.json ./
 COPY . .
-RUN npm ci && NODE_ENV=production npm run build
+RUN npm ci && npm run build
 
 FROM node:22-alpine AS production
 WORKDIR /app

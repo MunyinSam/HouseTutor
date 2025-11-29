@@ -12,6 +12,8 @@ import {
 	DialogFooter,
 } from '@/components/ui/dialog';
 
+type Topic = { id: number; name: string; description?: string };
+
 const BlocksPage = () => {
 	const router = useRouter();
 	const [dialogOpen, setDialogOpen] = useState(false);
@@ -53,7 +55,7 @@ const BlocksPage = () => {
 						<>
 							<Combobox
 								options={
-									topics?.map((t: any) => ({
+									topics?.map((t: Topic) => ({
 										label: t.name,
 										value: String(t.id),
 									})) || []
@@ -72,7 +74,7 @@ const BlocksPage = () => {
 							<div className="flex flex-wrap gap-2 mt-2">
 								{selectedTopics.map((id) => {
 									const topic = topics.find(
-										(t: any) => String(t.id) === id
+										(t: Topic) => String(t.id) === id
 									);
 									return (
 										<span
