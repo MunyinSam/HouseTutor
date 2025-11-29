@@ -35,16 +35,12 @@ export function Combobox({
 	options,
 	value,
 	onChange,
-	placeholder = 'Select...',
+	// HOUSE: Change default placeholder
+	placeholder = 'Choose a plausible differential...',
 	className,
 }: ComboboxProps) {
 	const [open, setOpen] = React.useState(false);
-	const [search, setSearch] = React.useState('');
-
-	// Filter options based on search
-	const filteredOptions = options.filter((option) =>
-		option.label.toLowerCase().includes(search.toLowerCase())
-	);
+	// ⚠️ NO local search state needed, Command handles it internally
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
@@ -64,25 +60,42 @@ export function Combobox({
 			</PopoverTrigger>
 			<PopoverContent className="w-full min-w-[200px] p-0">
 				<Command>
-					<CommandInput
-						placeholder={placeholder}
-						value={search}
-						onValueChange={setSearch}
-					/>
+					{/* CommandInput now automatically controls the filtering of the CommandList */}
+					<CommandInput placeholder={placeholder} />
 					<CommandList>
-						<CommandEmpty>No options found.</CommandEmpty>
+						{/* HOUSE: Change Empty message */}
+						<CommandEmpty>
+							<div className="italic p-2">
+								Nothing found. You've stumped the machine. Lie
+								down.
+							</div>
+						</CommandEmpty>
 						<CommandGroup>
-							{filteredOptions.map((option) => (
+							{/* We map over ALL options. Command handles hiding/showing them. */}
+							{options.map((option) => (
 								<CommandItem
 									key={option.value}
-									value={option.value}
-									onSelect={(currentValue) => {
+									// IMPORTANT: Pass the 'label' as the CommandItem value for searchability
+									// This is the standard Shadcn pattern for internal filtering
+									value={option.label}
+									onSelect={(currentLabel) => {
+										// Find the original 'value' (ID) based on the 'label' returned by Command
+										const selectedOption = options.find(
+											(opt) =>
+												opt.label.toLowerCase() ===
+												currentLabel.toLowerCase()
+										);
+										const selectedValue =
+											selectedOption?.value || '';
+
+										// Toggle logic: If the current value is the same as the newly selected value, clear it, otherwise set it.
 										onChange(
-											currentValue === value
+											selectedValue === value
 												? ''
-												: currentValue
+												: selectedValue
 										);
 										setOpen(false);
+										// No need to clear local search state since it doesn't exist
 									}}
 								>
 									<CheckIcon

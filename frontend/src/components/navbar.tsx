@@ -17,27 +17,32 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 export function Navbar() {
 	const { data: session, status } = useSession();
 	return (
-		<nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-			<div className="container flex h-14 items-center justify-between">
-				<div className="flex items-center">
-					<Link
-						href="/"
-						className="ml-6 mr-6 flex items-center space-x-2"
-					>
+		<nav className="sticky top-0 z-50 w-full border-b bg-white">
+			<div className="container flex h-14 items-center px-0">
+				{/* Left: Logo */}
+				<div className="flex-none flex items-center pl-6 pr-6">
+					<Link href="/" className="flex items-center space-x-2">
 						<span className="font-bold">House Tutor</span>
 					</Link>
 				</div>
-				<div className="flex-1 flex items-center">
-					<nav className="flex w-full justify-center items-center space-x-6 text-sm font-medium">
+				{/* Center: Nav */}
+				<div className="flex-1 flex justify-center">
+					<nav className="flex items-center space-x-6 text-sm font-medium">
 						<Link
 							href="/blocks"
 							className="transition-colors hover:text-foreground/80 text-foreground/60"
 						>
 							Blocks
 						</Link>
+						<Link
+							href="/blocks/create"
+							className="transition-colors hover:text-foreground/80 text-foreground/60"
+						>
+							Questions
+						</Link>
 					</nav>
 				</div>
-				<div className="flex items-center space-x-2 justify-end">
+				<div className="flex-none flex items-center space-x-2 justify-end pr-6">
 					{status === 'loading' ? (
 						<div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
 					) : session ? (
