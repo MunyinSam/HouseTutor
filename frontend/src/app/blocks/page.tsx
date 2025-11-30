@@ -37,8 +37,6 @@ const BlocksPage = () => {
 		<div className="flex min-h-screen flex-col overflow-x-hidden">
 			<Navbar />
 			<div className="flex flex-col items-center justify-center min-h-screen gap-8 relative">
-				{/*  */}
-
 				<Image
 					alt="House Tutor"
 					className="object-cover -z-10 scale-100 object-center"
@@ -54,7 +52,7 @@ const BlocksPage = () => {
 						className="w-full cursor-pointer bg-gray-200 text-black hover:bg-gray-600"
 						onClick={handleStartMinigame}
 					>
-						Start Diagnostic Quiz
+						Start Quiz
 					</Button>
 					<Button
 						className="w-full cursor-pointer text-black hover:bg-gray-600"

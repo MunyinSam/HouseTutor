@@ -122,12 +122,12 @@ export const useIncrementQuestionPriority = () => {
 			const { data } = await instance.patch(`/${id}/increment-priority`);
 			return data;
 		},
-		onSuccess: (_, id) => {
-			// Invalidate all relevant queries to refetch updated data
-			queryClient.invalidateQueries({ queryKey: ['questions'] });
-			queryClient.invalidateQueries({ queryKey: ['questions-by-topic'] });
-			queryClient.invalidateQueries({ queryKey: ['question', id] });
-		},
+		// onSuccess: (_, id) => {
+		// 	// Invalidate all relevant queries to refetch updated data
+		// 	queryClient.invalidateQueries({ queryKey: ['questions'] });
+		// 	queryClient.invalidateQueries({ queryKey: ['questions-by-topic'] });
+		// 	queryClient.invalidateQueries({ queryKey: ['question', id] });
+		// },
 	});
 };
 
@@ -139,10 +139,10 @@ export const useDecrementQuestionPriority = () => {
 			const { data } = await instance.patch(`/${id}/decrement-priority`);
 			return data;
 		},
-		onSuccess: (_, id) => {
-			queryClient.invalidateQueries({ queryKey: ['questions'] });
-			queryClient.invalidateQueries({ queryKey: ['questions-by-topic'] });
-			queryClient.invalidateQueries({ queryKey: ['question', id] });
-		},
+		// onSuccess: (_, id) => {
+		// 	queryClient.invalidateQueries({ queryKey: ['questions'] });
+		// 	queryClient.invalidateQueries({ queryKey: ['questions-by-topic'] });
+		// 	queryClient.invalidateQueries({ queryKey: ['question', id] });
+		// },
 	});
 };
