@@ -140,3 +140,19 @@ export const decrementPriority = async (id: number) => {
 
 	return result.rows[0];
 };
+
+// Update Question Hint
+export const updateQuestionHint = async (id: string, hint: string) => {
+	const pool: Pool = await getDbConnection();
+	const queryText = `
+		UPDATE questions
+		SET 
+			hint = $2,
+			"updatedAt" = current_timestamp
+		WHERE id = $1
+		RETURNING *;
+	`;
+	const values = [id, hint];
+	const result = await pool.query(queryText, values);
+	return result.rows[0];
+};

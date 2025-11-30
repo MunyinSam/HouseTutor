@@ -25,6 +25,7 @@ model Question {
   id        Int      @id @default(autoincrement())
   question  String
   answer    String
+  hint      String?
   topicId   Int
   topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
