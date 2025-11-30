@@ -7,6 +7,8 @@ services:
             POSTGRES_DB: ${POSTGRES_DB:-housetutor}
         ports:
             - '5432:5432'
+        networks:
+            - prisma-network
         volumes:
             - ./postgres/data:/var/lib/postgresql/data
         env_file:
@@ -26,6 +28,8 @@ services:
         container_name: housetutor-backend
         ports:
             - '${PORT:-8000}:8000'
+        networks:
+            - prisma-network
         depends_on:
             db:
                 condition: service_healthy
@@ -35,7 +39,8 @@ services:
         command: >
             sh -c "
               echo '--- [Backend] Database check complete. Running Prisma migrations...';
-              npm run db:migrate && npx prisma db seed && npm start
+              npm run db:migrate && npm start && echo $DATABASE_URL
+              
             "
 
     frontend:
@@ -43,8 +48,8 @@ services:
             context: ./frontend
             dockerfile: Dockerfile
         container_name: housetutor-frontend
-        environment:
-            - BACKEND_URL=http://backend:8000
+        networks:
+            - prisma-network
         env_file:
             - path: .env
               required: true
@@ -52,3 +57,6 @@ services:
             - '8080:3000'
         depends_on:
             - backend
+
+networks:
+  prisma-network:
