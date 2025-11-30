@@ -118,7 +118,7 @@ const MinigameClient = () => {
 					checked={hideAnswer}
 					onChange={() => setHideAnswer((prev) => !prev)}
 				/>
-				<label className="text-sm">Don't show answer</label>
+				<label className="text-sm">Don&apos;t show answer</label>
 			</div>
 
 			<div className="w-full max-w-2xl">

@@ -66,7 +66,7 @@ export function Combobox({
 						{/* HOUSE: Change Empty message */}
 						<CommandEmpty>
 							<div className="italic p-2">
-								Nothing found. You've stumped the machine. Lie
+								Nothing found. You&apos;ve stumped the machine. Lie
 								down.
 							</div>
 						</CommandEmpty>
