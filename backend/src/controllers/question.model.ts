@@ -11,11 +11,17 @@ import {
 	decrementPriority,
 } from '../models/question.model';
 
-const questionIdSchema = z.object({ id: z.string().uuid() });
+const questionIdSchema = z.object({ id: z.string() });
 const questionCreateSchema = z.object({
 	question: z.string(),
 	answer: z.string(),
 	topicId: z.number(),
+});
+const questionUpdateSchema = z.object({
+	question: z.string().optional(),
+	answer: z.string().optional(),
+	topicId: z.number().optional(),
+	priority: z.number().optional(),
 });
 
 export const createQuestionController = async (
@@ -44,9 +50,18 @@ export const updateQuestionController = async (
 ) => {
 	try {
 		const { id } = questionIdSchema.parse(req.params);
-		const { question, answer, topicId } = questionCreateSchema.parse(
-			req.body
-		);
+		const parsed = questionUpdateSchema.parse(req.body);
+
+		// Get existing question to merge with updates
+		const existing = await getQuestionById(id);
+		if (!existing) {
+			return res.status(404).json({ message: 'Question not found' });
+		}
+
+		const question = parsed.question ?? existing.question;
+		const answer = parsed.answer ?? existing.answer;
+		const topicId = parsed.topicId ?? existing.topicId;
+
 		const updated = await updateQuestion(id, question, answer, topicId);
 		if (!updated) {
 			return res.status(404).json({ message: 'Question not found' });

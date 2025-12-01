@@ -40,6 +40,12 @@ export function Navbar() {
 						>
 							Questions
 						</Link>
+						<Link
+							href="/admin"
+							className="transition-colors hover:text-foreground/80 text-foreground/60"
+						>
+							Admin
+						</Link>
 					</nav>
 				</div>
 				<div className="flex-none flex items-center space-x-2 justify-end pr-6">

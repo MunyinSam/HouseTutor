@@ -55,19 +55,19 @@ const BlocksPage = () => {
 				</h1>
 				<div className="flex flex-col gap-4 w-full max-w-xs">
 					<Button
-						className="w-full cursor-pointer bg-gray-200 text-black hover:bg-gray-600"
+						className="w-full cursor-pointer bg-gray-200 text-black hover:bg-gray-300"
 						onClick={handleStartMinigame}
 					>
 						Start Quiz
 					</Button>
 					<Button
-						className="w-full cursor-pointer text-black hover:bg-gray-600"
+						className="w-full cursor-pointer text-black hover:bg-gray-300"
 						variant="secondary"
 						onClick={() => router.push('/blocks/create')}
 					>
-						<div className="text-xs">
+						<div className="">
 							{' '}
-							Document Your Mistakes (Topics & Questions)
+							Add (Topics & Questions)
 						</div>
 					</Button>
 				</div>

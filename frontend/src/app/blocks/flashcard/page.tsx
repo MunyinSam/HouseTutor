@@ -79,7 +79,7 @@ export default function FlashCardPage() {
 											{flipped[question.id] ? (
 												<div>
 													<div className="text-sm">
-														Question
+														Answer
 													</div>
 													<div className="mt-5">
 														{question.answer}
@@ -88,7 +88,7 @@ export default function FlashCardPage() {
 											) : (
 												<div>
 													<div className="text-sm">
-														Answer
+														Question
 													</div>
 													<div className="mt-5">
 														{question.question}
