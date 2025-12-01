@@ -5,8 +5,9 @@ import {
 	useGetQuestions,
 	useDeleteQuestion,
 	useUpdateQuestion,
+	Question,
 } from '@/services/question';
-import { useGetTopics } from '@/services/topic';
+import { useGetTopics, Topic } from '@/services/topic';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -33,7 +34,7 @@ export default function QuestionsAdminTable() {
 
 	const [filterTopic, setFilterTopic] = useState('all');
 	const [page, setPage] = useState(1);
-	const [pageSize, setPageSize] = useState(10);
+	const pageSize = 10;
 	const [editId, setEditId] = useState<string | null>(null);
 	const [editValue, setEditValue] = useState({ question: '', answer: '' });
 
@@ -42,7 +43,7 @@ export default function QuestionsAdminTable() {
 		let filtered = questions;
 		if (filterTopic && filterTopic !== 'all') {
 			filtered = filtered.filter(
-				(q: any) => String(q.topicId) === filterTopic
+				(q: Question) => String(q.topicId) === filterTopic
 			);
 		}
 		return filtered;
@@ -65,7 +66,7 @@ export default function QuestionsAdminTable() {
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value="all">All</SelectItem>
-						{topics.map((t: any) => (
+						{topics.map((t: Topic) => (
 							<SelectItem key={t.id} value={String(t.id)}>
 								{t.name}
 							</SelectItem>
@@ -98,7 +99,7 @@ export default function QuestionsAdminTable() {
 							</TableCell>
 						</TableRow>
 					) : (
-						paginatedQuestions.map((row: any) => {
+						paginatedQuestions.map((row: Question) => {
 							const isEditing = editId === row.id;
 							return (
 								<TableRow key={row.id}>
@@ -136,7 +137,7 @@ export default function QuestionsAdminTable() {
 									</TableCell>
 									<TableCell>
 										{topics.find(
-											(t: any) =>
+											(t: Topic) =>
 												String(t.id) ===
 												String(row.topicId)
 										)?.name || row.topicId}
