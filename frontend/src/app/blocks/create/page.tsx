@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Navbar } from '@/components/navbar';
 import Image from 'next/image';
 
-const CreateBlockPage = () => {
+export default function CreateBlockPage() {
 	const queryClient = useQueryClient();
 	const { data: topics = [] } = useGetTopics();
 	const createTopic = useCreateTopic();
@@ -50,21 +50,20 @@ const CreateBlockPage = () => {
 	return (
 		// 1. Change min-h-screen to h-screen to make it exactly the viewport height
 		// 2. Add overflow-hidden to prevent any scrolling on the main container
-		<div className="flex h-screen flex-col overflow-hidden bg-gray-200">
-			<Navbar />
+		<div>
 			{/* The rest of the page content wrapper */}
 			{/* Use flex-grow (or flex-1) to make this div take up all remaining vertical space */}
 			{/* The min-h-screen was redundant here and caused the issue. Removing it and centering the content vertically will resolve the scroll problem. */}
 			{/* If the content must be vertically centered AND fill the screen, use h-full. */}
 			<div className="flex flex-col items-center justify-center">
-				{/* <Image
+				<Image
 					alt="House Tutor"
 					className="object-cover -z-10 scale-100 object-center opacity-90"
 					src="/house2.png"
 					fill
 					priority
-				/> */}
-				<div className="bg-white opacity-98 p-5 px-8 w-100 rounded-lg mt-10">
+				/>
+				<div className="bg-white opacity-98 py-8 px-8 w-100 rounded-lg mt-7">
 					<h2 className="text-2xl font-semibold mb-4">Add Stuff</h2>
 					<div className="w-full max-w-md flex flex-col gap-8">
 						<div className="border p-4 rounded-lg">
@@ -90,7 +89,7 @@ const CreateBlockPage = () => {
 											val ? Number(val) : null
 										)
 									}
-									placeholder="Select the current failure category"
+									placeholder="Select a category"
 								/>
 								<Input
 									value={question}
@@ -132,9 +131,7 @@ const CreateBlockPage = () => {
 									}
 									placeholder="Describe the scope (Optional)"
 								/>
-								<Button type="submit">
-									Add Topic
-								</Button>
+								<Button type="submit">Add Topic</Button>
 							</form>
 						</div>
 					</div>
@@ -142,6 +139,4 @@ const CreateBlockPage = () => {
 			</div>
 		</div>
 	);
-};
-
-export default CreateBlockPage;
+}

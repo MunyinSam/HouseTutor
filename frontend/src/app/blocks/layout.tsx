@@ -1,5 +1,6 @@
 'use client';
 
+import { Navbar } from '@/components/navbar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useState } from 'react';
 
@@ -8,7 +9,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
 	return (
 		<QueryClientProvider client={queryClient}>
-			{children}
+			<div className="flex h-screen flex-col overflow-hidden">
+				<Navbar />
+				{children}
+			</div>
 		</QueryClientProvider>
 	);
 }
