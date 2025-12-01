@@ -6,7 +6,6 @@ import { useGetTopics } from '@/services/topic';
 import { useGetQuestionsByTopicId } from '@/services/question';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-// Import the new QuestionList component
 import QuestionList from '@/components/question-list';
 
 type Question = {
@@ -18,7 +17,7 @@ type Question = {
 };
 type Topic = { id: number; name: string; description?: string };
 
-const MinigameClient = () => {
+export default function MinigameClient() {
 	const { data: topics, isLoading: topicsLoading } = useGetTopics();
 	const searchParams = useSearchParams();
 	const router = useRouter();
@@ -146,5 +145,3 @@ const MinigameClient = () => {
 		</div>
 	);
 };
-
-export default MinigameClient;

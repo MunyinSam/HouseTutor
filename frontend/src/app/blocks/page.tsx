@@ -26,16 +26,22 @@ const BlocksPage = () => {
 		setDialogOpen(true);
 	};
 
-	const handleConfirm = () => {
+	const handleConfirmMinigame = () => {
 		if (selectedTopics.length > 0) {
 			router.push(`/blocks/minigame?topicId=${selectedTopics.join(',')}`);
 			setDialogOpen(false);
 		}
 	};
 
+	const handleConfirmFlashCard = () => {
+		if (selectedTopics.length > 0) {
+			router.push(`/blocks/flashcard?topicId=${selectedTopics.join(',')}`);
+			setDialogOpen(false);
+		}
+	};
+
 	return (
-		<div className="flex min-h-screen flex-col overflow-x-hidden">
-			<Navbar />
+		<div>
 			<div className="flex flex-col items-center justify-center min-h-screen gap-8 relative">
 				<Image
 					alt="House Tutor"
@@ -49,19 +55,19 @@ const BlocksPage = () => {
 				</h1>
 				<div className="flex flex-col gap-4 w-full max-w-xs">
 					<Button
-						className="w-full cursor-pointer bg-gray-200 text-black hover:bg-gray-600"
+						className="w-full cursor-pointer bg-gray-200 text-black hover:bg-gray-300"
 						onClick={handleStartMinigame}
 					>
 						Start Quiz
 					</Button>
 					<Button
-						className="w-full cursor-pointer text-black hover:bg-gray-600"
+						className="w-full cursor-pointer text-black hover:bg-gray-300"
 						variant="secondary"
 						onClick={() => router.push('/blocks/create')}
 					>
-						<div className="text-xs">
+						<div className="">
 							{' '}
-							Document Your Mistakes (Topics & Questions)
+							Add (Topics & Questions)
 						</div>
 					</Button>
 				</div>
@@ -71,10 +77,7 @@ const BlocksPage = () => {
 							Pick Your Poison (Topic Selection)
 						</DialogTitle>
 						{topicsLoading ? (
-							<div>
-								Waiting for the data... Try not to break
-								anything.
-							</div>
+							<div>Waiting for the data...</div>
 						) : (
 							<>
 								<Combobox
@@ -96,7 +99,7 @@ const BlocksPage = () => {
 											]);
 										}
 									}}
-									placeholder="Select the source of your confusion"
+									placeholder="Select Topics"
 								/>
 								<div className="flex flex-wrap gap-2 mt-2">
 									{selectedTopics.map((id) => {
@@ -124,7 +127,7 @@ const BlocksPage = () => {
 													}
 													aria-label="Remove"
 												>
-													×
+													x
 												</button>
 											</span>
 										);
@@ -134,10 +137,16 @@ const BlocksPage = () => {
 						)}
 						<DialogFooter>
 							<Button
-								onClick={handleConfirm}
+								onClick={handleConfirmMinigame}
 								disabled={selectedTopics.length === 0}
 							>
-								Start Treatment
+								Start Minigame
+							</Button>
+							<Button
+								onClick={handleConfirmFlashCard}
+								disabled={selectedTopics.length === 0}
+							>
+								Start Flash Card
 							</Button>
 						</DialogFooter>
 					</DialogContent>
