@@ -74,10 +74,10 @@ export default function FlashCardClient() {
 									onClick={() => handleFlip(question.id)}
 								>
 									<CardContent className="flex aspect-square items-center justify-center p-6 w-full h-full">
-										<span className="text-4xl font-semibold text-center break-words">
+										<span className="text-4xl font-semibold text-center wrap-break-word">
 											{flipped[question.id]
-												? question.answer
-												: question.question}
+												? (<div className='text-[0.8em]'>{question.answer}</div>)
+												: (<div className=''>{question.question}</div>)}
 										</span>
 									</CardContent>
 								</Card>

@@ -92,7 +92,7 @@ export default function MinigameClient() {
 	const totalCount = questions.length;
 
 	return (
-		<div className="flex flex-col items-center min-h-screen pt-10 pb-20 px-4 sm:px-6 lg:px-8">
+		<div className="flex flex-col items-center overflow-y-auto pt-10 pb-20 px-4 sm:px-6 lg:px-8">
 			<h2 className="text-3xl font-bold mb-2">Minigame: All Questions</h2>
 			<div className="mb-2 text-base font-medium">
 				Topics:&nbsp;

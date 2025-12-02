@@ -57,7 +57,7 @@ export default function QuestionsAdminTable() {
 	const totalPages = Math.ceil(filteredQuestions.length / pageSize);
 
 	return (
-		<div className="p-4">
+		<div className="p-30 w-full overflow-y-auto">
 			<h2 className="text-2xl font-bold mb-4">Questions Admin Table</h2>
 			<div className="mb-4 flex gap-4 items-center">
 				<Select value={filterTopic} onValueChange={setFilterTopic}>
