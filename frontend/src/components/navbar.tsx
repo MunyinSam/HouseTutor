@@ -36,13 +36,13 @@ export function Navbar() {
 
 					{/* Desktop Navigation Links (Visible only on md screens and up) */}
 					<nav className="hidden md:flex items-center space-x-6">
-						<Link href="/blocks" className={linkClasses}>
+						<Link href="/decks" className={linkClasses}>
 							Decks
 						</Link>
-						<Link href="/blocks/create" className={linkClasses}>
+						<Link href="/decks/add" className={linkClasses}>
 							Add
 						</Link>
-						<Link href="/admin" className={linkClasses}>
+						<Link href="/search" className={linkClasses}>
 							Search
 						</Link>
 					</nav>

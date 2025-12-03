@@ -1,5 +1,5 @@
-// This schema redesigns the structure to support Spaced Repetition (Anki-style)
-// by separating the static card content (Card) from the user's progress (Review).
+// This schema implements the separation of content (Question)
+// from the atomic review unit (Flashcard) for Spaced Repetition tracking.
 
 generator client {
   provider = "prisma-client-js"
@@ -7,77 +7,102 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url       = env("DATABASE_URL")
 }
 
 // 1. User Model: For authentication and tracking ownership/progress.
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  name      String?
-  decks     Deck[]    // Decks created by the user
-  reviews   Review[]  // All review records for this user
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String?
+  decks           Deck[]    // Decks created by the user
+  reviews         Review[]  // All review records for this user
 
   @@map("users")
 }
 
-// 2. Deck Model: A collection of flashcards.
+// 2. Deck Model: A collection of questions.
 model Deck {
-  id            Int       @id @default(autoincrement())
-  title         String    @unique
-  description   String?
+  id              Int       @id @default(autoincrement())
+  title           String    @unique
+  description     String?
+  category        String
   
   // Ownership details
-  ownerId       String
-  owner         User      @relation(fields: [ownerId], references: [id])
+  ownerId         String
+  owner           User      @relation(fields: [ownerId], references: [id])
   
-  cards         Card[]
+  // Content questions belonging to this deck
+  questions       Question[] 
   
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@map("decks")
 }
 
-// 3. Card Model: The static, core flashcard content (Question/Answer).
-model Card {
-  id            Int       @id @default(autoincrement())
-  front         String    // The prompt or question side
-  back          String    // The answer or solution side
+// 3. Question Model: The static, core content with nesting support.
+// This is the CONTENT SOURCE (Q1, Q1.1, Q1.2).
+model Question {
+  id              Int       @id @default(autoincrement())
+  front           String    // The prompt or question side
+  back            String    // The answer or solution side
+  
+  // --- Hierarchy/Nesting Fields ---
+  // The parent question (Q1) for a sub-question (Q1.1)
+  parentId        Int?      
+  parent          Question? @relation("SubQuestions", fields: [parentId], references: [id], onDelete: Cascade)
+  // The list of sub-questions for a parent question
+  subQuestions    Question[] @relation("SubQuestions")
+  // --------------------------------
   
   // Link to the Deck
-  deckId        Int
-  deck          Deck      @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  deckId          Int
+  deck            Deck      @relation(fields: [deckId], references: [id], onDelete: Cascade)
+
+  // Link to the atomic reviewable unit (1-to-1)
+  flashcard       Flashcard? // Uses a ? because the Flashcard is the one with the foreign key
   
-  // Link to all user reviews for this card
-  reviews       Review[]  
-  
-  // Optional: Add an index for quick retrieval of cards in a deck
   @@index([deckId])
-  @@map("cards")
+  @@map("questions")
 }
 
-// 4. Review Model: Tracks a specific User's spaced repetition progress on a specific Card.
+// 4. Flashcard Model: The ATOMIC REVIEW UNIT. 
+// It holds the foreign key to the content and is the target of reviews.
+model Flashcard {
+    id              Int       @id @default(autoincrement())
+    
+    // Links 1-to-1 to the content Question
+    questionId      Int       @unique
+    question        Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+    // Link to all user reviews for this specific review unit
+    reviews         Review[]
+    
+    @@map("flashcards")
+}
+
+// 5. Review Model: Tracks a specific User's spaced repetition progress on a specific Flashcard.
 model Review {
-  id            Int       @id @default(autoincrement())
+  id                 Int       @id @default(autoincrement())
   
   // User who is reviewing
-  userId        String
-  user          User      @relation(fields: [userId], references: [id])
+  userId             String
+  user               User      @relation(fields: [userId], references: [id])
   
-  // Card being reviewed
-  cardId        Int
-  card          Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  // Flashcard unit being reviewed
+  flashcardId        Int
+  flashcard          Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
 
   // --- Spaced Repetition (SM-2) Scheduling Data ---
-  easinessFactor Float    @default(2.5) // EF (2.5 is the starting value). Adjusts based on grade.
-  interval        Int     @default(0)   // I (In days). The gap before the next review.
-  consecutiveCorrect Int  @default(0)   // n (Number of times answered correctly in a row).
-  nextReviewDate  DateTime @default(now()) // The next scheduled review date.
+  easinessFactor     Float     @default(2.5) 
+  interval           Int       @default(0)    
+  consecutiveCorrect Int       @default(0)    
+  nextReviewDate     DateTime  @default(now())
   
-  lastReviewedAt  DateTime @default(now()) // Timestamp of the last successful review.
+  lastReviewedAt     DateTime  @default(now()) 
   
-  // Ensures a user only has one review progress record per card (Crucial)
-  @@unique([userId, cardId])
+  // Ensures a user only has one review progress record per flashcard
+  @@unique([userId, flashcardId])
   @@map("reviews")
 }
