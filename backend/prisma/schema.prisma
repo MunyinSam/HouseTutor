@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// This schema redesigns the structure to support Spaced Repetition (Anki-style)
+// by separating the static card content (Card) from the user's progress (Review).
 
 generator client {
   provider = "prisma-client-js"
@@ -10,27 +10,74 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Topic {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique
-  description String?
-  questions   Question[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @default(now())
+// 1. User Model: For authentication and tracking ownership/progress.
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  decks     Deck[]    // Decks created by the user
+  reviews   Review[]  // All review records for this user
 
-  @@map("topics")
+  @@map("users")
 }
 
-model Question {
-  id        Int      @id @default(autoincrement())
-  question  String
-  answer    String
-  hint      String?
-  topicId   Int
-  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  priority  Int      @default(0)
+// 2. Deck Model: A collection of flashcards.
+model Deck {
+  id            Int       @id @default(autoincrement())
+  title         String    @unique
+  description   String?
+  
+  // Ownership details
+  ownerId       String
+  owner         User      @relation(fields: [ownerId], references: [id])
+  
+  cards         Card[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  @@map("questions")
+  @@map("decks")
+}
+
+// 3. Card Model: The static, core flashcard content (Question/Answer).
+model Card {
+  id            Int       @id @default(autoincrement())
+  front         String    // The prompt or question side
+  back          String    // The answer or solution side
+  
+  // Link to the Deck
+  deckId        Int
+  deck          Deck      @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  
+  // Link to all user reviews for this card
+  reviews       Review[]  
+  
+  // Optional: Add an index for quick retrieval of cards in a deck
+  @@index([deckId])
+  @@map("cards")
+}
+
+// 4. Review Model: Tracks a specific User's spaced repetition progress on a specific Card.
+model Review {
+  id            Int       @id @default(autoincrement())
+  
+  // User who is reviewing
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  
+  // Card being reviewed
+  cardId        Int
+  card          Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  // --- Spaced Repetition (SM-2) Scheduling Data ---
+  easinessFactor Float    @default(2.5) // EF (2.5 is the starting value). Adjusts based on grade.
+  interval        Int     @default(0)   // I (In days). The gap before the next review.
+  consecutiveCorrect Int  @default(0)   // n (Number of times answered correctly in a row).
+  nextReviewDate  DateTime @default(now()) // The next scheduled review date.
+  
+  lastReviewedAt  DateTime @default(now()) // Timestamp of the last successful review.
+  
+  // Ensures a user only has one review progress record per card (Crucial)
+  @@unique([userId, cardId])
+  @@map("reviews")
 }

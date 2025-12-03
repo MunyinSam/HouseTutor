@@ -2,124 +2,132 @@
 
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { Home, LogOut, User } from 'lucide-react';
+import { LogOut, User, Menu, X } from 'lucide-react'; // Added X icon for closing
 import { Button } from '@/components/ui/button';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useState } from 'react'; // 🎯 Added useState for mobile menu control
 
 export function Navbar() {
 	const { data: session, status } = useSession();
+
+	// 🎯 FIX 2: State to manage the mobile menu visibility
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+	// 🎯 FIX 1: Changed text color to black/dark for all links
+	const linkClasses =
+		'text-black/80 transition-colors hover:text-black text-sm font-medium';
+
+	// 🎯 FIX 1: Set default text color to black for the entire bar
+	const navBarClasses = 'w-full bg-transparent text-black';
+
 	return (
-		<nav className="sticky top-0 z-50 w-full border-b bg-white">
-			<div className="container flex h-14 items-center px-0">
-				{/* Left: Logo */}
-				<div className="flex-none flex items-center pl-6 pr-6">
-					<Link href="/" className="flex items-center space-x-2">
-						<span className="font-bold">House Tutor</span>
-					</Link>
-				</div>
-				{/* Center: Nav */}
-				<div className="flex-1 flex justify-center">
-					<nav className="flex items-center space-x-6 text-sm font-medium">
-						<Link
-							href="/blocks"
-							className="transition-colors hover:text-foreground/80 text-foreground/60"
-						>
-							Blocks
+		<nav className={navBarClasses}>
+			{/* Main Flex Container */}
+			<div className="flex h-14 items-center px-4 md:px-10">
+				{/* Left Section: Logo & Main Navigation Links */}
+				<div className="flex flex-1 items-center">
+					{/* Logo (House Tutor) - Text color explicitly set to black */}
+					<div className="flex-none flex items-center pr-4 md:pr-10">
+						<Link href="/" className="flex items-center space-x-2">
+							<span className="font-bold text-xl text-black">
+								House Tutor
+							</span>
 						</Link>
-						<Link
-							href="/blocks/create"
-							className="transition-colors hover:text-foreground/80 text-foreground/60"
-						>
-							Questions
+					</div>
+
+					{/* Desktop Navigation Links (Visible only on md screens and up) */}
+					<nav className="hidden md:flex items-center space-x-6">
+						<Link href="/blocks" className={linkClasses}>
+							Decks
 						</Link>
-						<Link
-							href="/admin"
-							className="transition-colors hover:text-foreground/80 text-foreground/60"
-						>
-							Admin
+						<Link href="/blocks/create" className={linkClasses}>
+							Add
+						</Link>
+						<Link href="/admin" className={linkClasses}>
+							Search
 						</Link>
 					</nav>
 				</div>
-				<div className="flex-none flex items-center space-x-2 justify-end pr-6">
+
+				{/* Right Section: Auth/Account/Logout (Visible on all screens) */}
+				<div className="flex-none flex items-center space-x-4">
 					{status === 'loading' ? (
-						<div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+						<div className="h-8 w-8 animate-pulse rounded-full bg-black/30" />
 					) : session ? (
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button
-									variant="ghost"
-									className="relative h-8 w-8 rounded-full"
-								>
-									<Avatar className="h-8 w-8">
-										<AvatarImage
-											src={session.user?.image || ''}
-											alt={session.user?.name || ''}
-										/>
-										<AvatarFallback>
-											{session.user?.name
-												?.charAt(0)
-												.toUpperCase() || 'U'}
-										</AvatarFallback>
-									</Avatar>
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								className="w-56"
-								align="end"
-								forceMount
-							>
-								<DropdownMenuLabel className="font-normal">
-									<div className="flex flex-col space-y-1">
-										<p className="text-sm font-medium leading-none">
-											{session.user?.name}
-										</p>
-										<p className="text-xs leading-none text-muted-foreground">
-											{session.user?.email}
-										</p>
-									</div>
-								</DropdownMenuLabel>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem asChild>
-									<Link
-										href="/profile"
-										className="cursor-pointer"
-									>
-										<User className="mr-2 h-4 w-4" />
-										<span>Profile</span>
-									</Link>
-								</DropdownMenuItem>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem
-									className="cursor-pointer text-red-600"
-									onClick={() =>
-										signOut({ callbackUrl: '/' })
-									}
-								>
-									<LogOut className="mr-2 h-4 w-4" />
-									<span>Log out</span>
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					) : (
 						<>
-							<Button variant="ghost" asChild>
+							{/* Account & Logout links using black text */}
+							<Link href="/profile" className={linkClasses}>
+								Account
+							</Link>
+							<button
+								onClick={() => signOut({ callbackUrl: '/' })}
+								className={linkClasses}
+							>
+								Log Out
+							</button>
+						</>
+					) : (
+						// User is Logged Out (Login/Signup buttons)
+						<>
+							{/* Login button: hidden on small screens */}
+							<Button
+								variant="ghost"
+								asChild
+								// 🎯 FIX 1: Changed text color to black/dark
+								className="hidden sm:inline-flex text-black/80 hover:bg-black/10"
+							>
 								<Link href="/login">Login</Link>
 							</Button>
-							<Button asChild>
+							{/* Sign Up button */}
+							<Button
+								asChild
+								className="bg-black text-white hover:bg-gray-800"
+							>
 								<Link href="/signup">Sign Up</Link>
 							</Button>
 						</>
 					)}
+
+					{/* 🎯 FIX 2: Mobile Menu Button (Hamburger) */}
+					<Button
+						variant="ghost"
+						className="md:hidden text-black p-2"
+						onClick={() => setIsMenuOpen(!isMenuOpen)} // Toggle state
+					>
+						{isMenuOpen ? (
+							<X className="h-6 w-6" /> // X icon when menu is open
+						) : (
+							<Menu className="h-6 w-6" /> // Menu icon when menu is closed
+						)}
+					</Button>
 				</div>
 			</div>
+
+			{/* 🎯 FIX 2: Mobile Menu Content (Appears below the main nav bar) */}
+			{isMenuOpen && (
+				<div className="md:hidden flex flex-col items-start px-4 pb-4 space-y-2 bg-gray-50 border-t border-gray-200">
+					<Link
+						href="/blocks"
+						className="w-full text-left text-black hover:bg-gray-100 py-2 px-2 rounded-md"
+						onClick={() => setIsMenuOpen(false)} // Close menu on click
+					>
+						Decks
+					</Link>
+					<Link
+						href="/blocks/create"
+						className="w-full text-left text-black hover:bg-gray-100 py-2 px-2 rounded-md"
+						onClick={() => setIsMenuOpen(false)}
+					>
+						Add
+					</Link>
+					<Link
+						href="/admin"
+						className="w-full text-left text-black hover:bg-gray-100 py-2 px-2 rounded-md"
+						onClick={() => setIsMenuOpen(false)}
+					>
+						Search
+					</Link>
+				</div>
+			)}
 		</nav>
 	);
 }
