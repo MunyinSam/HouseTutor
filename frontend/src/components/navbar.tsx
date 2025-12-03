@@ -75,14 +75,14 @@ export function Navbar() {
 								// 🎯 FIX 1: Changed text color to black/dark
 								className="hidden sm:inline-flex text-black/80 hover:bg-black/10"
 							>
-								<Link href="/login">Login</Link>
+								<Link href="/auth/login">Login</Link>
 							</Button>
 							{/* Sign Up button */}
 							<Button
 								asChild
 								className="bg-black text-white hover:bg-gray-800"
 							>
-								<Link href="/signup">Sign Up</Link>
+								<Link href="/auth/signup">Sign Up</Link>
 							</Button>
 						</>
 					)}
