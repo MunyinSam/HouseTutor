@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 import {
 	useCreateQuestion,
-	useGetQuestionById,
+	useUpdateQuestion,
+	useGetQuestionsByDeckId,
+	Question,
 } from '@/services/question.service';
 import { useSession } from 'next-auth/react';
 import { useParams } from 'next/navigation';
-import { PencilOff, X } from 'lucide-react'; // Added X icon for the DialogClose
+import { PencilOff, Plus, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,7 +20,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog';
 import {
 	Card,
@@ -29,64 +30,11 @@ import {
 } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 
-// Interface for type safety
-interface Question {
-	id: number;
+// Interface for new sub-question being added
+interface NewSubQuestion {
 	front: string;
 	back: string;
-	deckId: number;
-	parentId: number | null;
-	subQuestions?: Question[];
 }
-
-const mockdata: Question[] = [
-	{
-		id: 1,
-		front: 'What is the capital of France?',
-		back: 'Paris',
-		deckId: 1,
-		parentId: null,
-		subQuestions: [
-			{
-				id: 2,
-				front: 'Which river runs through Paris?',
-				back: 'The Seine',
-				deckId: 1,
-				parentId: 1,
-			},
-			{
-				id: 3,
-				front: 'What famous structure is in Paris?',
-				back: 'Eiffel Tower',
-				deckId: 1,
-				parentId: 1,
-			},
-		],
-	},
-	{
-		id: 4,
-		front: "Explain the concept of 'Hoisting' in JavaScript.",
-		back: 'Hoisting is a JavaScript mechanism where variable and function declarations are moved to the top of their containing scope during compilation.',
-		deckId: 1,
-		parentId: null,
-		subQuestions: [
-			{
-				id: 5,
-				front: 'What types of declarations are hoisted?',
-				back: 'Function declarations and variable declarations (var).',
-				deckId: 1,
-				parentId: 4,
-			},
-		],
-	},
-	{
-		id: 6,
-		front: 'What is the formula for the area of a circle?',
-		back: '$A = \\pi r^2$',
-		deckId: 1,
-		parentId: null,
-	},
-];
 
 export default function EditDeckPage() {
 	const { data: session } = useSession();
@@ -97,20 +45,39 @@ export default function EditDeckPage() {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [selectedCard, setSelectedCard] = useState<Question | null>(null);
 	const [openDialog, setOpenDialog] = useState(false);
-
-	const [editFront, setEditFront] = useState('');
-	const [editBack, setEditBack] = useState('');
-
 	const [openAddDialog, setOpenAddDialog] = useState(false);
 
-	// Fetching data (using mockdata for now)
-	// const { data: decks, isLoading } = useGetQuestionById(deckId);
+	// Edit dialog state
+	const [editFront, setEditFront] = useState('');
+	const [editBack, setEditBack] = useState('');
+	const [editedSubQuestions, setEditedSubQuestions] = useState<Question[]>(
+		[]
+	);
+	const [newSubQuestions, setNewSubQuestions] = useState<NewSubQuestion[]>(
+		[]
+	);
 
-	// Effect to update the form states when a new card is selected
+	// Add dialog state
+	const [addFront, setAddFront] = useState('');
+	const [addBack, setAddBack] = useState('');
+	const [addSubQuestions, setAddSubQuestions] = useState<NewSubQuestion[]>(
+		[]
+	);
+
+	// Fetching data from API
+	const { data: questions, isLoading } = useGetQuestionsByDeckId(deckId);
+	const createQuestionMutation = useCreateQuestion();
+	const updateQuestionMutation = useUpdateQuestion();
+
+	// Effect to update the form states when a card is selected for editing
 	useEffect(() => {
 		if (selectedCard) {
 			setEditFront(selectedCard.front);
 			setEditBack(selectedCard.back);
+			setEditedSubQuestions(
+				selectedCard.subQuestions ? [...selectedCard.subQuestions] : []
+			);
+			setNewSubQuestions([]);
 		}
 	}, [selectedCard]);
 
@@ -120,30 +87,168 @@ export default function EditDeckPage() {
 		setOpenDialog(true);
 	};
 
-	// Function to handle form submission (mock update logic)
-	const handleUpdate = (e: React.FormEvent) => {
-		e.preventDefault();
-
-		// ** Implement your actual mutation (e.g., useUpdateQuestion) here
-		console.log(
-			`Updating card ${selectedCard?.id}: Front: ${editFront}, Back: ${editBack}`
+	// Handle sub-question changes for existing sub-questions
+	const handleSubQuestionChange = (
+		subQId: number,
+		field: 'front' | 'back',
+		value: string
+	) => {
+		setEditedSubQuestions((prev) =>
+			prev.map((subQ) =>
+				subQ.id === subQId ? { ...subQ, [field]: value } : subQ
+			)
 		);
-
-		// Close the dialog after submission
-		setOpenDialog(false);
 	};
 
-	if (!selectedCard) {
-		// Fallback card structure for the dialog when it's closed/not ready
-		// You can use a generic type or simply keep it null
-	}
+	// Handle new sub-question changes (in edit dialog)
+	const handleNewSubQuestionChange = (
+		index: number,
+		field: 'front' | 'back',
+		value: string
+	) => {
+		setNewSubQuestions((prev) =>
+			prev.map((subQ, i) =>
+				i === index ? { ...subQ, [field]: value } : subQ
+			)
+		);
+	};
 
-	// Filter mockdata based on searchQuery
-	const filteredCards = mockdata.filter(
+	// Add a new sub-question field to edit dialog
+	const addNewSubQuestionField = () => {
+		setNewSubQuestions((prev) => [...prev, { front: '', back: '' }]);
+	};
+
+	// Remove a new sub-question field from edit dialog
+	const removeNewSubQuestionField = (index: number) => {
+		setNewSubQuestions((prev) => prev.filter((_, i) => i !== index));
+	};
+
+	// Handle add sub-question changes (in add dialog)
+	const handleAddSubQuestionChange = (
+		index: number,
+		field: 'front' | 'back',
+		value: string
+	) => {
+		setAddSubQuestions((prev) =>
+			prev.map((subQ, i) =>
+				i === index ? { ...subQ, [field]: value } : subQ
+			)
+		);
+	};
+
+	// Add a new sub-question field to add dialog
+	const addSubQuestionField = () => {
+		setAddSubQuestions((prev) => [...prev, { front: '', back: '' }]);
+	};
+
+	// Remove a sub-question field from add dialog
+	const removeSubQuestionField = (index: number) => {
+		setAddSubQuestions((prev) => prev.filter((_, i) => i !== index));
+	};
+
+	// Function to handle update submission
+	const handleUpdate = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!selectedCard) return;
+
+		try {
+			// Update main question
+			await updateQuestionMutation.mutateAsync({
+				id: selectedCard.id,
+				body: {
+					front: editFront,
+					back: editBack,
+				},
+			});
+
+			// Update existing sub-questions
+			for (const subQ of editedSubQuestions) {
+				await updateQuestionMutation.mutateAsync({
+					id: subQ.id,
+					body: {
+						front: subQ.front,
+						back: subQ.back,
+					},
+				});
+			}
+
+			// Create new sub-questions
+			for (const newSubQ of newSubQuestions) {
+				if (newSubQ.front.trim() && newSubQ.back.trim()) {
+					await createQuestionMutation.mutateAsync({
+						front: newSubQ.front,
+						back: newSubQ.back,
+						deckId: deckId,
+						parentId: selectedCard.id,
+					});
+				}
+			}
+
+			setOpenDialog(false);
+			setSelectedCard(null);
+			setNewSubQuestions([]);
+		} catch (error) {
+			console.error('Error updating question:', error);
+		}
+	};
+
+	// Function to handle add question submission
+	const handleAddQuestion = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!addFront.trim() || !addBack.trim()) {
+			alert('Please fill in both front and back fields');
+			return;
+		}
+
+		try {
+			// Create main question
+			const newQuestion = await createQuestionMutation.mutateAsync({
+				front: addFront,
+				back: addBack,
+				deckId: deckId,
+				parentId: null,
+			});
+
+			// Create sub-questions if any
+			for (const subQ of addSubQuestions) {
+				if (subQ.front.trim() && subQ.back.trim()) {
+					await createQuestionMutation.mutateAsync({
+						front: subQ.front,
+						back: subQ.back,
+						deckId: deckId,
+						parentId: newQuestion.id,
+					});
+				}
+			}
+
+			// Reset form
+			setAddFront('');
+			setAddBack('');
+			setAddSubQuestions([]);
+			setOpenAddDialog(false);
+		} catch (error) {
+			console.error('Error creating question:', error);
+		}
+	};
+
+	// Filter questions based on search query
+	const filteredCards = (questions || []).filter(
 		(card) =>
 			card.front.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			card.back.toLowerCase().includes(searchQuery.toLowerCase())
 	);
+
+	if (isLoading) {
+		return (
+			<div className="min-h-screen p-8 bg-gray-50">
+				<p className="text-center text-gray-600">
+					Loading questions...
+				</p>
+			</div>
+		);
+	}
 
 	return (
 		<div className="min-h-screen p-8 bg-gray-50">
@@ -160,20 +265,24 @@ export default function EditDeckPage() {
 			</header>
 
 			{/* Search Input */}
-			<div className="grid grid-cols-4 gap-5">
+			<div className="grid lg:grid-cols-4 gap-5 grid-col-2 mb-5">
 				<Input
-					className="w-full mb-5 col-span-2"
+					className="w-full mb-1 lg:col-span-2 col-span-1"
 					placeholder="Search cards by question or answer"
 					value={searchQuery}
 					onChange={(e) => setSearchQuery(e.target.value)}
 				/>
-				<Button className="bg-blue-200 border border-blue-500 hover:bg-blue-300 text-black">
+				<Button
+					className="bg-blue-200 border border-blue-500 hover:bg-blue-300 text-black lg:col-span-1 col-span-1 mb-1"
+					onClick={() => setOpenAddDialog(true)}
+				>
+					<Plus className="w-4 h-4 mr-2" />
 					Add Question
 				</Button>
 			</div>
 
 			{/* Card Grid */}
-			<div className="grid grid-cols-4 gap-5">
+			<div className="grid lg:grid-cols-4 gap-5 sm:grid-cols-2">
 				{filteredCards.map((card) => (
 					// Attach the click handler to open the dialog and set the card data
 					<Card
@@ -206,7 +315,8 @@ export default function EditDeckPage() {
 			{/* Edit Dialog (Rendered conditionally) */}
 			{selectedCard && (
 				<Dialog open={openDialog} onOpenChange={setOpenDialog}>
-					<DialogContent className="sm:max-w-xl">
+					<DialogContent className="sm:max-w-xl flex flex-col max-h-[90vh]">
+						{' '}
 						<DialogHeader>
 							<DialogTitle>
 								Edit Card (ID: {selectedCard.id})
@@ -216,7 +326,11 @@ export default function EditDeckPage() {
 								here. Click save when you're done.
 							</DialogDescription>
 						</DialogHeader>
-						<form onSubmit={handleUpdate} className="space-y-4">
+						<form
+							onSubmit={handleUpdate}
+							className="space-y-4 overflow-y-auto pr-4 -mr-4"
+						>
+							{' '}
 							{/* Card Front Input */}
 							<div className="space-y-2">
 								<label
@@ -235,7 +349,6 @@ export default function EditDeckPage() {
 									rows={3}
 								/>
 							</div>
-
 							{/* Card Back Input */}
 							<div className="space-y-2">
 								<label
@@ -254,28 +367,122 @@ export default function EditDeckPage() {
 									rows={5}
 								/>
 							</div>
-
-							{/* Sub-Questions Information (Read-only for now) */}
-							{selectedCard.subQuestions &&
-								selectedCard.subQuestions.length > 0 && (
-									<div className="p-3 border rounded-md bg-yellow-50 text-yellow-800">
-										<p className="text-sm font-semibold">
-											This card has{' '}
-											{selectedCard.subQuestions.length}{' '}
-											linked sub-questions.
-										</p>
-										<ul className="list-disc list-inside text-xs mt-1">
-											{selectedCard.subQuestions.map(
-												(sub) => (
-													<li key={sub.id}>
-														{sub.front}
-													</li>
-												)
-											)}
-										</ul>
-									</div>
-								)}
-
+							{/* Existing Sub-Questions */}
+							{editedSubQuestions.length > 0 && (
+								<div className="space-y-4 border p-4 rounded-lg bg-white shadow-inner">
+									<h3 className="font-bold text-lg text-blue-700">
+										Existing Sub-Questions (
+										{editedSubQuestions.length})
+									</h3>
+									{editedSubQuestions.map((subQ, index) => (
+										<div
+											key={subQ.id}
+											className="space-y-2 border-l-4 pl-4 py-2 border-blue-200"
+										>
+											<p className="font-medium text-sm text-gray-700">
+												Sub-Question {index + 1} (ID:{' '}
+												{subQ.id})
+											</p>
+											<Textarea
+												id={`sub-front-${subQ.id}`}
+												value={subQ.front}
+												onChange={(e) =>
+													handleSubQuestionChange(
+														subQ.id,
+														'front',
+														e.target.value
+													)
+												}
+												placeholder="Sub-Question Front"
+												rows={2}
+												className="mt-1"
+											/>
+											<Textarea
+												id={`sub-back-${subQ.id}`}
+												value={subQ.back}
+												onChange={(e) =>
+													handleSubQuestionChange(
+														subQ.id,
+														'back',
+														e.target.value
+													)
+												}
+												placeholder="Sub-Question Back"
+												rows={3}
+												className="mt-1"
+											/>
+										</div>
+									))}
+								</div>
+							)}
+							{/* New Sub-Questions */}
+							{newSubQuestions.length > 0 && (
+								<div className="space-y-4 border p-4 rounded-lg bg-green-50 shadow-inner">
+									<h3 className="font-bold text-lg text-green-700">
+										New Sub-Questions (
+										{newSubQuestions.length})
+									</h3>
+									{newSubQuestions.map((subQ, index) => (
+										<div
+											key={index}
+											className="space-y-2 border-l-4 pl-4 py-2 border-green-300 relative"
+										>
+											<div className="flex justify-between items-center">
+												<p className="font-medium text-sm text-gray-700">
+													New Sub-Question {index + 1}
+												</p>
+												<Button
+													type="button"
+													variant="ghost"
+													size="sm"
+													onClick={() =>
+														removeNewSubQuestionField(
+															index
+														)
+													}
+													className="text-red-500 hover:text-red-700"
+												>
+													<Trash2 className="w-4 h-4" />
+												</Button>
+											</div>
+											<Textarea
+												value={subQ.front}
+												onChange={(e) =>
+													handleNewSubQuestionChange(
+														index,
+														'front',
+														e.target.value
+													)
+												}
+												placeholder="Sub-Question Front"
+												rows={2}
+											/>
+											<Textarea
+												value={subQ.back}
+												onChange={(e) =>
+													handleNewSubQuestionChange(
+														index,
+														'back',
+														e.target.value
+													)
+												}
+												placeholder="Sub-Question Back"
+												rows={3}
+											/>
+										</div>
+									))}
+								</div>
+							)}
+							{/* Add New Sub-Question Button */}
+							<Button
+								type="button"
+								variant="outline"
+								onClick={addNewSubQuestionField}
+								className="w-full"
+							>
+								<Plus className="w-4 h-4 mr-2" />
+								Add New Sub-Question
+							</Button>
 							{/* Dialog Footer with Buttons */}
 							<DialogFooter>
 								<DialogClose asChild>
@@ -283,12 +490,162 @@ export default function EditDeckPage() {
 										Cancel
 									</Button>
 								</DialogClose>
-								<Button type="submit">Save Changes</Button>
+								<Button
+									type="submit"
+									disabled={
+										updateQuestionMutation.isPending ||
+										createQuestionMutation.isPending
+									}
+								>
+									{updateQuestionMutation.isPending ||
+									createQuestionMutation.isPending
+										? 'Saving...'
+										: 'Save Changes'}
+								</Button>
 							</DialogFooter>
 						</form>
 					</DialogContent>
 				</Dialog>
 			)}
+
+			{/* Add Question Dialog */}
+			<Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
+				<DialogContent className="sm:max-w-xl flex flex-col max-h-[90vh]">
+					<DialogHeader>
+						<DialogTitle>Add New Question</DialogTitle>
+						<DialogDescription>
+							Create a new question for this deck. You can also
+							add sub-questions.
+						</DialogDescription>
+					</DialogHeader>
+					<form
+						onSubmit={handleAddQuestion}
+						className="space-y-4 overflow-y-auto pr-4 -mr-4"
+					>
+						{/* Question Front Input */}
+						<div className="space-y-2">
+							<label
+								htmlFor="add-front"
+								className="font-medium text-sm"
+							>
+								Question Front
+							</label>
+							<Textarea
+								id="add-front"
+								value={addFront}
+								onChange={(e) => setAddFront(e.target.value)}
+								placeholder="Enter the question here"
+								rows={3}
+								required
+							/>
+						</div>
+
+						{/* Question Back Input */}
+						<div className="space-y-2">
+							<label
+								htmlFor="add-back"
+								className="font-medium text-sm"
+							>
+								Question Back (Answer)
+							</label>
+							<Textarea
+								id="add-back"
+								value={addBack}
+								onChange={(e) => setAddBack(e.target.value)}
+								placeholder="Enter the answer here"
+								rows={5}
+								required
+							/>
+						</div>
+
+						{/* Sub-Questions */}
+						{addSubQuestions.length > 0 && (
+							<div className="space-y-4 border p-4 rounded-lg bg-blue-50 shadow-inner">
+								<h3 className="font-bold text-lg text-blue-700">
+									Sub-Questions ({addSubQuestions.length})
+								</h3>
+								{addSubQuestions.map((subQ, index) => (
+									<div
+										key={index}
+										className="space-y-2 border-l-4 pl-4 py-2 border-blue-300 relative"
+									>
+										<div className="flex justify-between items-center">
+											<p className="font-medium text-sm text-gray-700">
+												Sub-Question {index + 1}
+											</p>
+											<Button
+												type="button"
+												variant="ghost"
+												size="sm"
+												onClick={() =>
+													removeSubQuestionField(
+														index
+													)
+												}
+												className="text-red-500 hover:text-red-700"
+											>
+												<Trash2 className="w-4 h-4" />
+											</Button>
+										</div>
+										<Textarea
+											value={subQ.front}
+											onChange={(e) =>
+												handleAddSubQuestionChange(
+													index,
+													'front',
+													e.target.value
+												)
+											}
+											placeholder="Sub-Question Front"
+											rows={2}
+										/>
+										<Textarea
+											value={subQ.back}
+											onChange={(e) =>
+												handleAddSubQuestionChange(
+													index,
+													'back',
+													e.target.value
+												)
+											}
+											placeholder="Sub-Question Back"
+											rows={3}
+										/>
+									</div>
+								))}
+							</div>
+						)}
+
+						{/* Add Sub-Question Button */}
+						<Button
+							type="button"
+							variant="outline"
+							onClick={addSubQuestionField}
+							className="w-full"
+						>
+							<Plus className="w-4 h-4 mr-2" />
+							Add Sub-Question
+						</Button>
+
+						{/* Dialog Footer */}
+						<DialogFooter>
+							<DialogClose asChild>
+								<Button type="button" variant="outline">
+									Cancel
+								</Button>
+							</DialogClose>
+							<Button
+								type="submit"
+								disabled={createQuestionMutation.isPending}
+							>
+								{createQuestionMutation.isPending
+									? 'Creating...'
+									: 'Create Question'}
+							</Button>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
