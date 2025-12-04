@@ -1,6 +1,7 @@
 import { createUser, getUserByEmail } from '@/services/user.service';
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import jwt from 'jsonwebtoken';
 
 const handler = NextAuth({
 	providers: [
@@ -9,6 +10,9 @@ const handler = NextAuth({
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
 		}),
 	],
+	session: {
+		strategy: 'jwt',
+	},
 	callbacks: {
 		async signIn({ user, account, profile }) {
 			if (account?.provider === 'google' && user.email) {
@@ -31,6 +35,33 @@ const handler = NextAuth({
 				}
 			}
 			return true;
+		},
+		async jwt({ token, user, account }) {
+			// Initial sign in - generate a JWT for backend auth
+			if (account && user) {
+				const secret = process.env.NEXTAUTH_SECRET!;
+				const backendToken = jwt.sign(
+					{
+						sub: user.id || token.sub,
+						email: user.email,
+						name: user.name,
+					},
+					secret,
+					{ expiresIn: '7d' }
+				);
+				return {
+					...token,
+					backendToken,
+				};
+			}
+			return token;
+		},
+		async session({ session, token }) {
+			// Send backend token to client
+			if (session.user) {
+				(session as any).backendToken = token.backendToken;
+			}
+			return session;
 		},
 	},
 });
