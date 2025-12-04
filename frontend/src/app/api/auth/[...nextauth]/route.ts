@@ -37,12 +37,15 @@ const handler = NextAuth({
 			return true;
 		},
 		async jwt({ token, user, account }) {
-			// Initial sign in - generate a JWT for backend auth
-			if (account && user) {
+			// Initial sign in - generate a JWT for backend auth and fetch userId
+			if (account && user && user.email) {
+				const dbUser = await getUserByEmail(user.email);
+				const userId = dbUser?.id || user.id || token.sub;
+
 				const secret = process.env.NEXTAUTH_SECRET!;
 				const backendToken = jwt.sign(
 					{
-						sub: user.id || token.sub,
+						sub: userId,
 						email: user.email,
 						name: user.name,
 					},
@@ -52,14 +55,16 @@ const handler = NextAuth({
 				return {
 					...token,
 					backendToken,
+					userId,
 				};
 			}
 			return token;
 		},
 		async session({ session, token }) {
-			// Send backend token to client
+			// Send backend token and userId to client
 			if (session.user) {
 				(session as any).backendToken = token.backendToken;
+				(session as any).userId = token.userId;
 			}
 			return session;
 		},

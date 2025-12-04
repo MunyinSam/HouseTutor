@@ -2,21 +2,17 @@
 
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { LogOut, User, Menu, X } from 'lucide-react'; // Added X icon for closing
+import { LogOut, User, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react'; // 🎯 Added useState for mobile menu control
+import { useState } from 'react';
 
 export function Navbar() {
 	const { data: session, status } = useSession();
 
-	// 🎯 FIX 2: State to manage the mobile menu visibility
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-	// 🎯 FIX 1: Changed text color to black/dark for all links
 	const linkClasses =
 		'text-black/80 transition-colors hover:text-black text-sm font-medium';
 
-	// 🎯 FIX 1: Set default text color to black for the entire bar
 	const navBarClasses = 'w-full bg-transparent text-black';
 
 	return (

@@ -36,7 +36,7 @@ model Deck {
   questions       Question[] 
   
   createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  updatedAt       DateTime?  @updatedAt
 
   @@map("decks")
 }

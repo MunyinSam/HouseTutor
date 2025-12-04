@@ -28,14 +28,14 @@ app.use(cookieParser());
 app.get('/health', (_req, res) => res.json({ ok: true }));
 const apiV1 = express.Router();
 
-// Apply auth middleware to all API routes
-apiV1.use(authMiddleware);
-
-apiV1.use('/deck', deckRouter);
+// Routes without auth (for user creation during sign-in)
 apiV1.use('/user', userRouter);
-apiV1.use('/question', questionRouter);
-apiV1.use('/flashcard', flashcardRouter);
-apiV1.use('/review', reviewRouter);
+
+// Apply auth middleware to protected routes
+apiV1.use('/deck', authMiddleware, deckRouter);
+apiV1.use('/question', authMiddleware, questionRouter);
+apiV1.use('/flashcard', authMiddleware, flashcardRouter);
+apiV1.use('/review', authMiddleware, reviewRouter);
 
 app.use('/api/v1', apiV1);
 

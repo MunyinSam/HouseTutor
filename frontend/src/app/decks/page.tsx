@@ -1,7 +1,9 @@
 'use client';
 
-import { useRouter } from 'next/navigation'; // 1. Import useRouter
-
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useGetDecksByOwnerId } from '@/services/deck.service';
 import {
 	Card,
 	CardDescription,
@@ -10,123 +12,180 @@ import {
 	CardTitle,
 	CardContent,
 } from '@/components/ui/card';
-import { LayoutGrid, Layers } from 'lucide-react';
-
-// --- Expanded Mock Data ---
-const mockdecks = [
-	{
-		id: 1,
-		name: 'Pharmaco Basics',
-		detail: 'Essential concepts in pharmacokinetics and pharmacodynamics.',
-		size: 75,
-		category: 'Medical',
-	},
-	{
-		id: 2,
-		name: 'React Hooks Deep Dive',
-		detail: 'Understanding useState, useEffect, useContext, and custom hooks.',
-		size: 42,
-		category: 'Programming',
-	},
-	{
-		id: 3,
-		name: 'World Capitals',
-		detail: 'A quick-fire deck to memorize the capitals of countries globally.',
-		size: 195,
-		category: 'Geography',
-	},
-	{
-		id: 4,
-		name: 'Organic Chemistry Reactions',
-		detail: 'Key mechanisms and reagents for advanced organic synthesis.',
-		size: 110,
-		category: 'Science',
-	},
-	{
-		id: 5,
-		name: 'Modern Art History',
-		detail: 'From Impressionism to contemporary works.',
-		size: 60,
-		category: 'Art',
-	},
-];
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
+import { LayoutGrid, Layers, Edit, BookOpen, CreditCard } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export default function DeckPage() {
-	// 2. Initialize the router
 	const router = useRouter();
+	const { data: session } = useSession();
+	const userId = (session as any)?.userId;
+	const { data: decks, isLoading } = useGetDecksByOwnerId(
+		userId || undefined
+	);
 
-	// 3. Define the click handler function
-	const handleCardClick = (id: number) => {
-		router.push(`/decks/${id}`);
+	const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
+	const [searchQuery, setSearchQuery] = useState('');
+
+	const selectedDeck = decks?.find((d) => d.id === selectedDeckId);
+
+	const filteredDecks = decks?.filter((deck) =>
+		deck.title.toLowerCase().includes(searchQuery.toLowerCase())
+	);
+
+	const handleDeckClick = (id: number) => {
+		setSelectedDeckId(id);
 	};
+
+	const handleEditDeck = () => {
+		if (selectedDeckId) {
+			router.push(`/decks/edit/${selectedDeckId}`);
+		}
+	};
+
+	const handleGoToQuestions = () => {
+		if (selectedDeckId) {
+			router.push(`/decks/question/${selectedDeckId}`);
+		}
+	};
+
+	const handleGoToFlashcards = () => {
+		if (selectedDeckId) {
+			router.push(`/decks/flashcard/${selectedDeckId}`);
+		}
+	};
+
+	if (!session) {
+		return (
+			<div className="min-h-screen p-8 bg-gray-50 flex items-center justify-center">
+				<p className="text-xl text-gray-600">
+					Please sign in to view your decks
+				</p>
+			</div>
+		);
+	}
 
 	return (
 		<div className="min-h-screen p-8 bg-gray-50">
 			<header className="mb-8">
 				<h1 className="text-3xl font-bold text-gray-900 flex items-center">
 					<LayoutGrid className="w-8 h-8 mr-2 text-blue-600" />
-					Your Flashcard Decks ({mockdecks.length})
+					Your Flashcard Decks ({filteredDecks?.length || 0})
 				</h1>
 				<p className="text-gray-600">
-					Select a deck to start reviewing or editing your cards.
+					Click on a deck to see available actions.
 				</p>
 			</header>
 
-			<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-				{mockdecks.map((deck) => (
-					<Card
-						key={deck.id}
-						// 4. Attach the click handler to the Card
-						onClick={() => handleCardClick(deck.id)}
-						className="transition-shadow duration-300 hover:shadow-lg hover:border-blue-400 cursor-pointer"
-					>
-						<CardHeader className="p-4 pb-2">
-							<CardTitle className="text-lg font-semibold text-gray-800 truncate">
-								{deck.name}
-							</CardTitle>
-							<CardDescription className="text-sm text-blue-600 font-medium">
-								{deck.category}
-							</CardDescription>
-						</CardHeader>
-
-						<CardContent className="p-4 pt-0">
-							<p className="text-gray-500 text-sm line-clamp-2">
-								{deck.detail}
-							</p>
-						</CardContent>
-
-						<CardFooter className="flex justify-between items-center p-4 pt-2 border-t bg-gray-50 rounded-b-lg">
-							<div className="flex items-center text-sm font-medium text-gray-700">
-								<Layers className="w-4 h-4 mr-1 text-gray-500" />
-								{deck.size} Cards
-							</div>
-							{/* Optional: Remove or adjust button if the whole card is clickable */}
-							<button
-								className="text-blue-500 hover:text-blue-700 text-sm font-medium"
-								// Stop the event from propagating to the Card's onClick handler
-								onClick={(e) => {
-									e.stopPropagation();
-									// You could add a different action here, like opening an edit modal
-									handleCardClick(deck.id); // For now, it does the same thing
-								}}
-							>
-								Questions &rarr;
-							</button>
-							<button
-								className="text-blue-500 hover:text-blue-700 text-sm font-medium"
-								// Stop the event from propagating to the Card's onClick handler
-								onClick={(e) => {
-									e.stopPropagation();
-									// You could add a different action here, like opening an edit modal
-									handleCardClick(deck.id); // For now, it does the same thing
-								}}
-							>
-								Flashcards &rarr;
-							</button>
-						</CardFooter>
-					</Card>
-				))}
+			<div className="grid grid-cols-3 gap-5">
+				<Input
+					className="w-full mb-5 col-span-2"
+					placeholder="Search decks"
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+				/>
+				<Button
+					className="bg-blue-200 border-2 border-blue-500 hover:bg-blue-300 text-black"
+					onClick={() => router.push('/decks/create')}
+				>
+					Add Deck
+				</Button>
 			</div>
+
+			{isLoading ? (
+				<div className="flex justify-center items-center py-20">
+					<p className="text-gray-600">Loading decks...</p>
+				</div>
+			) : filteredDecks && filteredDecks.length > 0 ? (
+				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+					{filteredDecks.map((deck) => (
+						<Card
+							key={deck.id}
+							onClick={() => handleDeckClick(deck.id)}
+							className="transition-shadow duration-300 hover:shadow-lg hover:border-blue-400 cursor-pointer"
+						>
+							<CardHeader className="p-4 pb-2">
+								<CardTitle className="text-lg font-semibold text-gray-800 truncate">
+									{deck.title}
+								</CardTitle>
+								<CardDescription className="text-sm text-blue-600 font-medium">
+									{deck.category}
+								</CardDescription>
+							</CardHeader>
+
+							<CardContent className="p-4 pt-0">
+								<p className="text-gray-500 text-sm line-clamp-2">
+									{deck.description || 'No description'}
+								</p>
+							</CardContent>
+
+							<CardFooter className="flex justify-between items-center p-4 pt-2 border-t bg-gray-50 rounded-b-lg">
+								<div className="flex items-center text-sm font-medium text-gray-700">
+									<Layers className="w-4 h-4 mr-1 text-gray-500" />
+									Click to view
+								</div>
+							</CardFooter>
+						</Card>
+					))}
+				</div>
+			) : (
+				<div className="flex flex-col items-center justify-center py-20">
+					<p className="text-gray-600 mb-4">No decks found</p>
+					<Button onClick={() => router.push('/decks/create')}>
+						Create Your First Deck
+					</Button>
+				</div>
+			)}
+
+			{/* Dialog Menu */}
+			<Dialog
+				open={!!selectedDeckId}
+				onOpenChange={(open) => !open && setSelectedDeckId(null)}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>{selectedDeck?.title}</DialogTitle>
+						<DialogDescription>
+							{selectedDeck?.description || 'No description'}
+						</DialogDescription>
+					</DialogHeader>
+
+					<div className="space-y-3 mt-4">
+						<Button
+							onClick={handleEditDeck}
+							variant="outline"
+							className="w-full justify-start"
+						>
+							<Edit className="w-4 h-4 mr-2" />
+							Edit Deck
+						</Button>
+
+						<Button
+							onClick={handleGoToQuestions}
+							variant="outline"
+							className="w-full justify-start"
+						>
+							<BookOpen className="w-4 h-4 mr-2" />
+							Manage Questions
+						</Button>
+
+						<Button
+							onClick={handleGoToFlashcards}
+							className="w-full justify-start bg-blue-600 hover:bg-blue-700"
+						>
+							<CreditCard className="w-4 h-4 mr-2" />
+							Study Flashcards
+						</Button>
+					</div>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
