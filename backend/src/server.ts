@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import { env } from './config/env';
 import deckRouter from './routes/decks.route';
 import userRouter from './routes/user.route';
+import questionRouter from './routes/question.route';
 
 const PORT = env.port;
 
@@ -26,6 +27,7 @@ const apiV1 = express.Router();
 
 apiV1.use('/deck', deckRouter);
 apiV1.use('/user', userRouter);
+apiV1.use('/question', questionRouter);
 
 app.use('/api/v1', apiV1);
 
