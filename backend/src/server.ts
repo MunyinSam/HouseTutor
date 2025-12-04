@@ -4,7 +4,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import { env } from './config/env';
-import deckRouter from './routes/decks.route'
+import deckRouter from './routes/decks.route';
+import userRouter from './routes/user.route';
 
 const PORT = env.port;
 
@@ -17,13 +18,14 @@ app.use(
 	})
 );
 app.use(express.json());
-app.use(morgan('dev')); 
+app.use(morgan('dev'));
 app.use(cookieParser());
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
 const apiV1 = express.Router();
 
-apiV1.use('/deck', deckRouter)
+apiV1.use('/deck', deckRouter);
+apiV1.use('/user', userRouter);
 
 app.use('/api/v1', apiV1);
 
