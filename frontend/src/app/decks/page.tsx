@@ -92,7 +92,7 @@ export default function DeckPage() {
 					onChange={(e) => setSearchQuery(e.target.value)}
 				/>
 				<Button
-					className="bg-blue-200 border-2 border-blue-500 hover:bg-blue-300 text-black"
+					className="bg-blue-200 border border-blue-500 hover:bg-blue-300 text-black"
 					onClick={() => router.push('/decks/create')}
 				>
 					Add Deck
@@ -138,7 +138,10 @@ export default function DeckPage() {
 			) : (
 				<div className="flex flex-col items-center justify-center py-20">
 					<p className="text-gray-600 mb-4">No decks found</p>
-					<Button onClick={() => router.push('/decks/create')}>
+					<Button
+						className="bg-blue-200 border border-blue-500 hover:bg-blue-300 text-black"
+						onClick={() => router.push('/decks/create')}
+					>
 						Create Your First Deck
 					</Button>
 				</div>
@@ -170,10 +173,10 @@ export default function DeckPage() {
 						<Button
 							onClick={handleGoToQuestions}
 							variant="outline"
-							className="w-full justify-start"
+							className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white hover:text-gray-200"
 						>
 							<BookOpen className="w-4 h-4 mr-2" />
-							Manage Questions
+							Study Questions
 						</Button>
 
 						<Button

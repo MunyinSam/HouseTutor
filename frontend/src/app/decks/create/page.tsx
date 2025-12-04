@@ -112,7 +112,7 @@ export default function CreateDeckPage() {
 								<Button
 									type="submit"
 									disabled={createDeck.isPending}
-									className="flex-1"
+									className="flex-1 bg-blue-200 border-2 border-blue-500 hover:bg-blue-300 text-black"
 								>
 									{createDeck.isPending && (
 										<Loader2 className="w-4 h-4 mr-2 animate-spin" />

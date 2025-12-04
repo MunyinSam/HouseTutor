@@ -32,7 +32,7 @@ export default function Home() {
 							</p>
 						</div>
 						<div className="flex flex-col gap-2 min-[400px]:flex-row">
-							<Link href="/blocks">
+							<Link href="/decks">
 								<Button
 									size="lg"
 									className="bg-primary border-2 text-white border-white hover:bg-white hover:text-black cursor-pointer"

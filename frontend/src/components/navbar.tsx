@@ -5,6 +5,20 @@ import { useSession, signOut } from 'next-auth/react';
 import { LogOut, User, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuPortal,
+	DropdownMenuSeparator,
+	DropdownMenuShortcut,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export function Navbar() {
 	const { data: session, status } = useSession();
@@ -51,15 +65,46 @@ export function Navbar() {
 					) : session ? (
 						<>
 							{/* Account & Logout links using black text */}
-							<Link href="/profile" className={linkClasses}>
-								Account
-							</Link>
-							<button
-								onClick={() => signOut({ callbackUrl: '/' })}
-								className={linkClasses}
-							>
-								Log Out
-							</button>
+
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<button>
+										{' '}
+										<img
+											src={session.user?.image || ''}
+											alt={`${session.user?.name}'s profile`}
+											className="h-8 w-8 rounded-full object-cover ring-4 ring-indigo-300 shadow-lg"
+											onError={(e) => {
+												e.currentTarget.onerror = null;
+												e.currentTarget.src =
+													'https://placehold.co/96x96/E0F2F1/14B8A6?text=User';
+											}}
+										/>
+									</button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent className="mt-4 mr-20">
+									<DropdownMenuLabel className='text-xs'>
+										Menu
+									</DropdownMenuLabel>
+									<DropdownMenuItem className="hover:bg-gray-200">
+										<Link
+											href="/profile"
+											className="text-black/80 transition-colors hover:text-black text-sm font-medium hover:opacity-90"
+										>
+											{' '}
+											Profile
+										</Link>
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										className="hover:bg-gray-200"
+										onClick={() =>
+											signOut({ callbackUrl: '/' })
+										}
+									>
+										Log Out
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
 						</>
 					) : (
 						// User is Logged Out (Login/Signup buttons)
@@ -74,12 +119,12 @@ export function Navbar() {
 								<Link href="/auth/login">Login</Link>
 							</Button>
 							{/* Sign Up button */}
-							<Button
+							{/* <Button
 								asChild
 								className="bg-black text-white hover:bg-gray-800"
 							>
 								<Link href="/auth/signup">Sign Up</Link>
-							</Button>
+							</Button> */}
 						</>
 					)}
 
