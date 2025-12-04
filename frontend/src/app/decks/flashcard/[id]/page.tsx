@@ -13,6 +13,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ArrowRight, Layers, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogDescription,
+} from '@/components/ui/dialog';
 
 interface DeckReviewPageProps {
 	params: Promise<{
@@ -34,6 +41,8 @@ export default function DeckReviewPage({ params }: DeckReviewPageProps) {
 	const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
 	const [showAnswer, setShowAnswer] = useState<boolean>(false);
 
+	const [alertSuccess, setAlertSuccess] = useState(false);
+
 	const currentCard = questions?.[currentCardIndex];
 	const cardsRemaining = (questions?.length || 0) - currentCardIndex;
 
@@ -50,7 +59,8 @@ export default function DeckReviewPage({ params }: DeckReviewPageProps) {
 			setCurrentCardIndex((prev) => prev + 1);
 			setShowAnswer(false);
 		} else {
-			alert(`Review complete for ${deck?.title || 'this deck'}!`);
+			// alert(`Review complete for ${deck?.title || 'this deck'}!`);
+			setAlertSuccess(true);
 			setCurrentCardIndex(0);
 			setShowAnswer(false);
 		}
@@ -166,6 +176,23 @@ export default function DeckReviewPage({ params }: DeckReviewPageProps) {
 					</Button>
 				</div>
 			)}
+
+			<Dialog open={alertSuccess} onOpenChange={setAlertSuccess}>
+				<DialogContent className="sm:max-w-[425px]">
+					<DialogHeader>
+						<DialogTitle>Review Complete! 🎉</DialogTitle>
+						<DialogDescription>
+							You have finished all {questions?.length} cards in
+							the **{deck.title}** deck.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="pt-4 flex justify-end">
+						<Button onClick={() => setAlertSuccess(false)}>
+							Start Review Again
+						</Button>
+					</div>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
