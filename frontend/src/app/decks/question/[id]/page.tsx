@@ -1,9 +1,14 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { MessageCircleQuestionMark, Check, X } from 'lucide-react';
+import {
+	MessageCircleQuestionMark,
+	Check,
+	X,
+	ChevronLeft,
+	ChevronRight,
+} from 'lucide-react';
 import { useParams } from 'next/navigation';
-// Assuming the following imports and types are correct from your project setup
 import { useGetQuestionsByDeckId, Question } from '@/services/question.service';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -27,6 +32,7 @@ export default function QuestionPage() {
 	const { data: questions, isLoading } = useGetQuestionsByDeckId(deckId);
 	const [answers, setAnswers] = useState<Record<number, QuestionAnswer>>({});
 	const [showAllAnswers, setShowAllAnswers] = useState(false);
+	const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
 	// Handler to track user input changes
 	const handleAnswerChange = (questionId: number, value: string) => {
@@ -89,8 +95,8 @@ export default function QuestionPage() {
 				</p>
 				{questions && (
 					<p className="text-sm text-gray-500 mt-1">
-						{questions.length} question
-						{questions.length !== 1 ? 's' : ''} available
+						Question {currentQuestionIndex + 1} of{' '}
+						{questions.length}
 					</p>
 				)}
 
@@ -113,10 +119,11 @@ export default function QuestionPage() {
 			</header>
 			{/* --- */}
 
-			{/* Questions List */}
+			{/* Current Question Display */}
 			<div className="space-y-6">
 				{questions && questions.length > 0 ? (
-					questions.map((question) => {
+					(() => {
+						const question = questions[currentQuestionIndex];
 						const mainAnswer = answers[question.id];
 						const showMainAnswer =
 							showAllAnswers &&
@@ -137,9 +144,9 @@ export default function QuestionPage() {
 								>
 									<CardHeader>
 										<CardTitle className="text-xl flex items-center gap-2">
-											<span className="text-blue-600 font-bold">
+											{/* <span className="text-blue-600 font-bold">
 												Q{question.id}:
-											</span>
+											</span> */}
 											{question.front}
 										</CardTitle>
 									</CardHeader>
@@ -252,7 +259,7 @@ export default function QuestionPage() {
 														>
 															<CardHeader className="pb-3">
 																<CardTitle className="text-lg flex items-center gap-2">
-																	<span className="text-purple-600 font-bold">
+																	{/* <span className="text-purple-600 font-bold">
 																		Q
 																		{
 																			question.id
@@ -262,7 +269,7 @@ export default function QuestionPage() {
 																			subQuestion.id
 																		}
 																		:
-																	</span>
+																	</span> */}
 																	{
 																		subQuestion.front
 																	}
@@ -365,7 +372,7 @@ export default function QuestionPage() {
 									)}
 							</div>
 						);
-					})
+					})()
 				) : (
 					<div className="text-center py-12">
 						<p className="text-gray-500 text-lg">
@@ -377,6 +384,42 @@ export default function QuestionPage() {
 					</div>
 				)}
 			</div>
+
+			{/* Navigation Buttons */}
+			{questions && questions.length > 0 && (
+				<div className="flex justify-between items-center mt-8">
+					<Button
+						variant="outline"
+						onClick={() =>
+							setCurrentQuestionIndex((prev) =>
+								Math.max(0, prev - 1)
+							)
+						}
+						disabled={currentQuestionIndex === 0}
+					>
+						<ChevronLeft className="w-4 h-4 mr-2" />
+						Previous
+					</Button>
+
+					<div className="text-sm text-gray-600">
+						Question {currentQuestionIndex + 1} of{' '}
+						{questions.length}
+					</div>
+
+					<Button
+						variant="outline"
+						onClick={() =>
+							setCurrentQuestionIndex((prev) =>
+								Math.min(questions.length - 1, prev + 1)
+							)
+						}
+						disabled={currentQuestionIndex === questions.length - 1}
+					>
+						Next
+						<ChevronRight className="w-4 h-4 ml-2" />
+					</Button>
+				</div>
+			)}
 		</div>
 	);
 }
