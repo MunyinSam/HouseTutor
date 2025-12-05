@@ -27,6 +27,7 @@ model Deck {
   updatedAt   DateTime?  @updatedAt
   owner       User       @relation(fields: [ownerId], references: [id])
   questions   Question[]
+  public      Boolean    @default(false)
 
   @@map("decks")
 }
@@ -42,6 +43,7 @@ model Question {
   deck         Deck       @relation(fields: [deckId], references: [id], onDelete: Cascade)
   parent       Question?  @relation("SubQuestions", fields: [parentId], references: [id], onDelete: Cascade)
   subQuestions Question[] @relation("SubQuestions")
+  imagePath    String?
 
   @@index([deckId])
   @@map("questions")

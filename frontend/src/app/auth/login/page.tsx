@@ -49,7 +49,7 @@ export default function LoginPage() {
 					</Button>
 				</div>
 
-				<div className="text-center text-sm text-muted-foreground">
+				{/* <div className="text-center text-sm text-muted-foreground">
 					Don&apos;t have an account?{' '}
 					<Link
 						href="/signup"
@@ -57,7 +57,7 @@ export default function LoginPage() {
 					>
 						Sign up
 					</Link>
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);

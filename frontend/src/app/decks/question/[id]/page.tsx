@@ -161,6 +161,16 @@ export default function QuestionPage() {
 										</CardTitle>
 									</CardHeader>
 									<CardContent className="space-y-3">
+										{/* Display image if exists */}
+										{question.imagePath && (
+											<div className="mb-4">
+												<img
+													src={`http://localhost:8000${question.imagePath}`}
+													alt="Question"
+													className="max-w-full rounded border shadow-sm"
+												/>
+											</div>
+										)}
 										{/* Answer Input */}
 										<div className="flex gap-2">
 											<Input
@@ -286,6 +296,16 @@ export default function QuestionPage() {
 																</CardTitle>
 															</CardHeader>
 															<CardContent className="space-y-3">
+																{/* Display image if exists */}
+																{subQuestion.imagePath && (
+																	<div className="mb-4">
+																		<img
+																			src={`http://localhost:8000${subQuestion.imagePath}`}
+																			alt="Sub-question"
+																			className="max-w-md rounded border shadow-sm"
+																		/>
+																	</div>
+																)}
 																{/* Answer Input */}
 																<div className="flex gap-2">
 																	<Input

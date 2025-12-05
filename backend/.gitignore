@@ -158,3 +158,5 @@ postgres-data/
 *.sql
 *.dump
 *.backup
+
+/uploads

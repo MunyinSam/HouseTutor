@@ -8,6 +8,7 @@ const questionCreateSchema = z.object({
 	back: z.string().min(1, 'Back is required'),
 	deckId: z.number().int().positive('Deck ID must be a positive integer'),
 	parentId: z.number().int().positive().nullable().optional(),
+	imagePath: z.string().optional(),
 });
 
 const questionUpdateSchema = z.object({
@@ -15,17 +16,32 @@ const questionUpdateSchema = z.object({
 	back: z.string().min(1).optional(),
 	deckId: z.number().int().positive().optional(),
 	parentId: z.number().int().positive().nullable().optional(),
+	imagePath: z.string().optional(),
 });
 
 // POST - Create Question
 export const createQuestionController = async (req: Request, res: Response) => {
 	try {
-		const parsed = questionCreateSchema.parse(req.body);
+		// Get imagePath from uploaded file or body
+		const imagePath = req.file
+			? `/uploads/questions/${req.file.filename}`
+			: req.body.imagePath || null;
+
+		const parsed = questionCreateSchema.parse({
+			...req.body,
+			deckId: parseInt(req.body.deckId, 10),
+			parentId: req.body.parentId
+				? parseInt(req.body.parentId, 10)
+				: null,
+			imagePath,
+		});
+
 		const question = await QuestionModel.createQuestion(
 			parsed.front,
 			parsed.back,
 			parsed.deckId,
-			parsed.parentId ?? null
+			parsed.parentId ?? null,
+			parsed.imagePath || ''
 		);
 		res.status(201).json(question);
 	} catch (error) {
@@ -45,13 +61,27 @@ export const updateQuestionController = async (req: Request, res: Response) => {
 			return res.status(400).json({ error: 'Invalid question ID' });
 		}
 
-		const parsed = questionUpdateSchema.parse(req.body);
+		// Get imagePath from uploaded file or body
+		const imagePath = req.file
+			? `/uploads/questions/${req.file.filename}`
+			: req.body.imagePath;
+
+		const parsed = questionUpdateSchema.parse({
+			...req.body,
+			deckId: req.body.deckId ? parseInt(req.body.deckId, 10) : undefined,
+			parentId: req.body.parentId
+				? parseInt(req.body.parentId, 10)
+				: undefined,
+			imagePath,
+		});
+
 		const question = await QuestionModel.updateQuestion(
 			id,
 			parsed.front,
 			parsed.back,
 			parsed.deckId,
-			parsed.parentId
+			parsed.parentId,
+			parsed.imagePath
 		);
 
 		if (!question) {

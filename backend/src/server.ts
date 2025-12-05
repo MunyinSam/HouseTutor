@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 import { env } from './config/env';
 import { authMiddleware } from './middleware/auth.middleware';
 import deckRouter from './routes/decks.route';
@@ -14,7 +15,11 @@ import reviewRouter from './routes/review.route';
 const PORT = env.port;
 
 const app = express();
-app.use(helmet());
+app.use(
+	helmet({
+		crossOriginResourcePolicy: { policy: 'cross-origin' },
+	})
+);
 app.use(
 	cors({
 		origin: 'http://localhost:3000',
@@ -24,6 +29,9 @@ app.use(
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(cookieParser());
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
 const apiV1 = express.Router();

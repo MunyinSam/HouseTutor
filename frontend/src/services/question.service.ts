@@ -11,6 +11,7 @@ export interface Question {
 	back: string;
 	deckId: number;
 	parentId: number | null;
+	imagePath?: string | null;
 	subQuestions?: Question[];
 }
 
@@ -19,6 +20,7 @@ export interface CreateQuestionBody {
 	back: string;
 	deckId: number;
 	parentId?: number | null;
+	image?: File | null;
 }
 
 export interface UpdateQuestionBody {
@@ -26,6 +28,7 @@ export interface UpdateQuestionBody {
 	back?: string;
 	deckId?: number;
 	parentId?: number | null;
+	image?: File | null;
 }
 
 // POST - Create question
@@ -33,7 +36,22 @@ export const useCreateQuestion = () => {
 	const queryClient = useQueryClient();
 	return useMutation<Question, Error, CreateQuestionBody>({
 		mutationFn: async (body) => {
-			const { data } = await instance.post('/', body);
+			const formData = new FormData();
+			formData.append('front', body.front);
+			formData.append('back', body.back);
+			formData.append('deckId', body.deckId.toString());
+			if (body.parentId !== undefined && body.parentId !== null) {
+				formData.append('parentId', body.parentId.toString());
+			}
+			if (body.image) {
+				formData.append('image', body.image);
+			}
+
+			const { data } = await instance.post('/', formData, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			});
 			return data;
 		},
 		onSuccess: () => {
@@ -51,7 +69,23 @@ export const useUpdateQuestion = () => {
 		{ id: number; body: UpdateQuestionBody }
 	>({
 		mutationFn: async ({ id, body }) => {
-			const { data } = await instance.patch(`/${id}`, body);
+			const formData = new FormData();
+			if (body.front !== undefined) formData.append('front', body.front);
+			if (body.back !== undefined) formData.append('back', body.back);
+			if (body.deckId !== undefined)
+				formData.append('deckId', body.deckId.toString());
+			if (body.parentId !== undefined && body.parentId !== null) {
+				formData.append('parentId', body.parentId.toString());
+			}
+			if (body.image) {
+				formData.append('image', body.image);
+			}
+
+			const { data } = await instance.patch(`/${id}`, formData, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			});
 			return data;
 		},
 		onSuccess: (data) => {

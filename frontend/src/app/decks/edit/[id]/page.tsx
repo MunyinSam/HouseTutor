@@ -50,6 +50,7 @@ export default function EditDeckPage() {
 	// Edit dialog state
 	const [editFront, setEditFront] = useState('');
 	const [editBack, setEditBack] = useState('');
+	const [editImage, setEditImage] = useState<File | null>(null);
 	const [editedSubQuestions, setEditedSubQuestions] = useState<Question[]>(
 		[]
 	);
@@ -60,6 +61,7 @@ export default function EditDeckPage() {
 	// Add dialog state
 	const [addFront, setAddFront] = useState('');
 	const [addBack, setAddBack] = useState('');
+	const [addImage, setAddImage] = useState<File | null>(null);
 	const [addSubQuestions, setAddSubQuestions] = useState<NewSubQuestion[]>(
 		[]
 	);
@@ -74,6 +76,7 @@ export default function EditDeckPage() {
 		if (selectedCard) {
 			setEditFront(selectedCard.front);
 			setEditBack(selectedCard.back);
+			setEditImage(null);
 			setEditedSubQuestions(
 				selectedCard.subQuestions ? [...selectedCard.subQuestions] : []
 			);
@@ -159,6 +162,7 @@ export default function EditDeckPage() {
 				body: {
 					front: editFront,
 					back: editBack,
+					image: editImage,
 				},
 			});
 
@@ -209,6 +213,7 @@ export default function EditDeckPage() {
 				back: addBack,
 				deckId: deckId,
 				parentId: null,
+				image: addImage,
 			});
 
 			// Create sub-questions if any
@@ -226,6 +231,7 @@ export default function EditDeckPage() {
 			// Reset form
 			setAddFront('');
 			setAddBack('');
+			setAddImage(null);
 			setAddSubQuestions([]);
 			setOpenAddDialog(false);
 		} catch (error) {
@@ -296,6 +302,13 @@ export default function EditDeckPage() {
 							</CardTitle>
 						</CardHeader>
 						<CardContent>
+							{card.imagePath && (
+								<img
+									src={`http://localhost:8000${card.imagePath}`}
+									alt="Question preview"
+									className="max-w-full h-32 object-cover rounded mb-2"
+								/>
+							)}
 							<CardDescription className="line-clamp-3">
 								{card.back}
 							</CardDescription>
@@ -366,6 +379,42 @@ export default function EditDeckPage() {
 									placeholder="Enter the answer here"
 									rows={5}
 								/>
+							</div>
+							{/* Image Upload */}
+							<div className="space-y-2">
+								<label
+									htmlFor="edit-image"
+									className="font-medium text-sm"
+								>
+									Image (Optional)
+								</label>
+								{selectedCard.imagePath && (
+									<div className="mb-2">
+										<p className="text-xs text-gray-500 mb-1">
+											Current image:
+										</p>
+										<img
+											src={`http://localhost:8000${selectedCard.imagePath}`}
+											alt="Current question"
+											className="max-w-xs rounded border"
+										/>
+									</div>
+								)}
+								<Input
+									id="edit-image"
+									type="file"
+									accept="image/*"
+									onChange={(e) =>
+										setEditImage(
+											e.target.files?.[0] || null
+										)
+									}
+								/>
+								{editImage && (
+									<p className="text-xs text-green-600">
+										New image selected: {editImage.name}
+									</p>
+								)}
 							</div>
 							{/* Existing Sub-Questions */}
 							{editedSubQuestions.length > 0 && (
@@ -556,6 +605,29 @@ export default function EditDeckPage() {
 								rows={5}
 								required
 							/>
+						</div>
+
+						{/* Image Upload */}
+						<div className="space-y-2">
+							<label
+								htmlFor="add-image"
+								className="font-medium text-sm"
+							>
+								Image (Optional)
+							</label>
+							<Input
+								id="add-image"
+								type="file"
+								accept="image/*"
+								onChange={(e) =>
+									setAddImage(e.target.files?.[0] || null)
+								}
+							/>
+							{addImage && (
+								<p className="text-xs text-green-600">
+									Image selected: {addImage.name}
+								</p>
+							)}
 						</div>
 
 						{/* Sub-Questions */}
