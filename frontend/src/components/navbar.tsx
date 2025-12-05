@@ -49,7 +49,7 @@ export function Navbar() {
 						<Link href="/decks" className={linkClasses}>
 							Decks
 						</Link>
-						<Link href="/decks/add" className={linkClasses}>
+						<Link href="/decks/create" className={linkClasses}>
 							Add
 						</Link>
 						<Link href="/search" className={linkClasses}>

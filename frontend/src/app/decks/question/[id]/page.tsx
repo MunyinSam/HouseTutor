@@ -7,8 +7,9 @@ import {
 	X,
 	ChevronLeft,
 	ChevronRight,
+	ArrowLeft,
 } from 'lucide-react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useGetQuestionsByDeckId, Question } from '@/services/question.service';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -28,6 +29,8 @@ export default function QuestionPage() {
 	const params = useParams();
 	const { id } = params;
 	const deckId = Number(id) || 0;
+
+	const router = useRouter();
 
 	const { data: questions, isLoading } = useGetQuestionsByDeckId(deckId);
 	const [answers, setAnswers] = useState<Record<number, QuestionAnswer>>({});
@@ -84,7 +87,15 @@ export default function QuestionPage() {
 	// --- Main Render ---
 	return (
 		<div className="min-h-screen p-8 bg-gray-50">
-			{/* The corrected header section */}
+			{/* The corrected header section */}{' '}
+			<Button
+				variant="ghost"
+				onClick={() => router.back()}
+				className="mb-4"
+			>
+				<ArrowLeft className="w-4 h-4 mr-2" />
+				Back to Decks
+			</Button>
 			<header className="mb-8">
 				<h1 className="text-3xl font-bold text-gray-900 flex items-center">
 					<MessageCircleQuestionMark className="w-8 h-8 mr-2 text-blue-600" />
@@ -105,7 +116,7 @@ export default function QuestionPage() {
 					<Checkbox
 						id="showAnswers"
 						checked={showAllAnswers}
-						onCheckedChange={(checked) =>
+						onCheckedChange={(checked: boolean) =>
 							setShowAllAnswers(checked as boolean)
 						}
 					/>
@@ -118,7 +129,6 @@ export default function QuestionPage() {
 				</div>
 			</header>
 			{/* --- */}
-
 			{/* Current Question Display */}
 			<div className="space-y-6">
 				{questions && questions.length > 0 ? (
@@ -384,7 +394,6 @@ export default function QuestionPage() {
 					</div>
 				)}
 			</div>
-
 			{/* Navigation Buttons */}
 			{questions && questions.length > 0 && (
 				<div className="flex justify-between items-center mt-8">

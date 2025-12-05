@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function CreateDeckPage() {
 	const router = useRouter();
@@ -44,85 +45,99 @@ export default function CreateDeckPage() {
 	};
 
 	return (
-		<div className="min-h-screen p-8 bg-gray-50">
-			<div className="max-w-2xl mx-auto">
-				<Button
-					variant="ghost"
-					onClick={() => router.back()}
-					className="mb-4"
-				>
-					<ArrowLeft className="w-4 h-4 mr-2" />
-					Back
-				</Button>
+		<div className="min-h-screen relative">
+			<Image
+				alt="House Tutor"
+				src="/house2.png"
+				fill
+				className="object-cover -z-10"
+				priority
+			/>
+			<div className="absolute inset-0 bg-black/10 -z-5"></div>
+			<div className="relative z-10 p-8">
+				<div className="max-w-2xl mx-auto">
+					<Button
+						variant="ghost"
+						onClick={() => router.back()}
+						className="mb-4"
+					>
+						<ArrowLeft className="w-4 h-4 mr-2" />
+						Back
+					</Button>
 
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-2xl">
-							Create New Deck
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<form onSubmit={handleSubmit} className="space-y-6">
-							<div className="space-y-2">
-								<Label htmlFor="title">Deck Title *</Label>
-								<Input
-									id="title"
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
-									placeholder="e.g., Spanish Vocabulary"
-									required
-								/>
-							</div>
+					<Card>
+						<CardHeader>
+							<CardTitle className="text-2xl">
+								Create New Deck
+							</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<form onSubmit={handleSubmit} className="space-y-6">
+								<div className="space-y-2">
+									<Label htmlFor="title">Deck Title *</Label>
+									<Input
+										id="title"
+										value={title}
+										onChange={(e) =>
+											setTitle(e.target.value)
+										}
+										placeholder="e.g., Spanish Vocabulary"
+										required
+									/>
+								</div>
 
-							<div className="space-y-2">
-								<Label htmlFor="category">Category *</Label>
-								<Input
-									id="category"
-									value={category}
-									onChange={(e) =>
-										setCategory(e.target.value)
-									}
-									placeholder="e.g., Language, Science, History"
-									required
-								/>
-							</div>
+								<div className="space-y-2">
+									<Label htmlFor="category">Category *</Label>
+									<Input
+										id="category"
+										value={category}
+										onChange={(e) =>
+											setCategory(e.target.value)
+										}
+										placeholder="e.g., Language, Science, History"
+										required
+									/>
+								</div>
 
-							<div className="space-y-2">
-								<Label htmlFor="description">Description</Label>
-								<Textarea
-									id="description"
-									value={description}
-									onChange={(e) =>
-										setDescription(e.target.value)
-									}
-									placeholder="Optional: Describe what this deck covers"
-									rows={4}
-								/>
-							</div>
+								<div className="space-y-2">
+									<Label htmlFor="description">
+										Description
+									</Label>
+									<Textarea
+										id="description"
+										value={description}
+										onChange={(e) =>
+											setDescription(e.target.value)
+										}
+										placeholder="Optional: Describe what this deck covers"
+										rows={4}
+									/>
+								</div>
 
-							<div className="flex gap-4">
-								<Button
-									type="button"
-									variant="outline"
-									onClick={() => router.back()}
-									className="flex-1"
-								>
-									Cancel
-								</Button>
-								<Button
-									type="submit"
-									disabled={createDeck.isPending}
-									className="flex-1 bg-blue-200 border-2 border-blue-500 hover:bg-blue-300 text-black"
-								>
-									{createDeck.isPending && (
-										<Loader2 className="w-4 h-4 mr-2 animate-spin" />
-									)}
-									Create Deck
-								</Button>
-							</div>
-						</form>
-					</CardContent>
-				</Card>
+								<div className="flex gap-4">
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() => router.back()}
+										className="flex-1"
+									>
+										Cancel
+									</Button>
+									<Button
+										type="submit"
+										disabled={createDeck.isPending}
+										className="flex-1 bg-blue-200 border-2 border-blue-500 hover:bg-blue-300 text-black"
+									>
+										{createDeck.isPending && (
+											<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+										)}
+										Create Deck
+									</Button>
+								</div>
+							</form>
+						</CardContent>
+					</Card>
+				</div>
 			</div>
 		</div>
 	);
