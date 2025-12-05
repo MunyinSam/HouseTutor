@@ -46,8 +46,11 @@ export function Navbar() {
 
 					{/* Desktop Navigation Links (Visible only on md screens and up) */}
 					<nav className="hidden md:flex items-center space-x-6">
-						<Link href="/decks" className={linkClasses}>
+						<Link href="/decks/all" className={linkClasses}>
 							Decks
+						</Link>
+						<Link href="/decks" className={linkClasses}>
+							Your Decks
 						</Link>
 						<Link href="/decks/create" className={linkClasses}>
 							Add
@@ -83,7 +86,7 @@ export function Navbar() {
 									</button>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent className="mt-4 mr-20">
-									<DropdownMenuLabel className='text-xs'>
+									<DropdownMenuLabel className="text-xs">
 										Menu
 									</DropdownMenuLabel>
 									<DropdownMenuItem className="hover:bg-gray-200">
