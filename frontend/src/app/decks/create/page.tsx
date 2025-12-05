@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { GoogleSession } from '@/types';
 
 export default function CreateDeckPage() {
 	const router = useRouter();
@@ -24,7 +25,7 @@ export default function CreateDeckPage() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		const userId = (session as any)?.userId;
+		const userId = (session as GoogleSession)?.userId;
 		if (!userId) {
 			alert('You must be logged in to create a deck');
 			return;

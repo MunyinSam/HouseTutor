@@ -323,7 +323,7 @@ export default function EditDeckPage() {
 							</DialogTitle>
 							<DialogDescription>
 								Make changes to the front and back of your card
-								here. Click save when you're done.
+								here. Click save when you are done.
 							</DialogDescription>
 						</DialogHeader>
 						<form

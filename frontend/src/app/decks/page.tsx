@@ -22,11 +22,12 @@ import {
 import { LayoutGrid, Layers, Edit, BookOpen, CreditCard } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { GoogleSession } from '@/types';
 
 export default function DeckPage() {
 	const router = useRouter();
 	const { data: session } = useSession();
-	const userId = (session as any)?.userId;
+	const userId = (session as GoogleSession)?.userId;
 	const { data: decks, isLoading } = useGetDecksByOwnerId(
 		userId || undefined
 	);

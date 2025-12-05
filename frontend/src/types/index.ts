@@ -50,3 +50,27 @@ export interface User {
 	decks: Deck[];
 	reviews: Review[];
 }
+
+export interface GoogleSessionUser {
+	name?: string;
+	email?: string;
+	image?: string;
+}
+
+export interface GoogleSession {
+	user: GoogleSessionUser;
+	backendToken?: string;
+	userId?: string;
+	expires: string;
+}
+
+export interface GoogleJwtToken {
+	name?: string;
+	email?: string;
+	sub?: string;
+	backendToken?: string;
+	userId?: string;
+	iat?: number;
+	exp?: number;
+	// Add other JWT fields if needed
+}

@@ -2,6 +2,18 @@ import { createUser, getUserByEmail } from '@/services/user.service';
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import jwt from 'jsonwebtoken';
+import { Session } from 'next-auth';
+import { JWT } from 'next-auth/jwt';
+
+interface CustomSession extends Session {
+	backendToken?: string;
+	userId?: string;
+}
+
+interface CustomJWT extends JWT {
+	backendToken?: string;
+	userId?: string;
+}
 
 const handler = NextAuth({
 	providers: [
@@ -63,8 +75,12 @@ const handler = NextAuth({
 		async session({ session, token }) {
 			// Send backend token and userId to client
 			if (session.user) {
-				(session as any).backendToken = token.backendToken;
-				(session as any).userId = token.userId;
+				session.backendToken =
+					typeof token.backendToken === 'string'
+						? token.backendToken
+						: undefined;
+				session.userId =
+					typeof token.userId === 'string' ? token.userId : undefined;
 			}
 			return session;
 		},
