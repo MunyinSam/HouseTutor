@@ -109,3 +109,31 @@ export const getDecksByCategory = async (category: string) => {
 	const result = await pool.query(queryText, values);
 	return result.rows;
 };
+
+export const updateDeckPublic = async (deckId: number) => {
+	const pool: Pool = await getDbConnection();
+	const queryText = `
+        UPDATE FROM decks
+		SET public = true
+        WHERE id = $1
+        RETURNING *;
+    `;
+
+	const values = [deckId];
+	const result = await pool.query(queryText, values);
+	return result.rows[0];
+};
+
+export const updateDeckPrivate = async (deckId: number) => {
+	const pool: Pool = await getDbConnection();
+	const queryText = `
+        UPDATE FROM decks
+		SET public = false
+        WHERE id = $1
+        RETURNING *;
+    `;
+
+	const values = [deckId];
+	const result = await pool.query(queryText, values);
+	return result.rows[0];
+};

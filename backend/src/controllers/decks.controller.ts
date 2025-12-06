@@ -8,6 +8,8 @@ import {
 	getAllDecks,
 	getDecksByOwnerId,
 	getDecksByCategory,
+	updateDeckPrivate,
+	updateDeckPublic
 } from '../models/decks.model';
 
 const deckIdSchema = z.object({ id: z.string() });
@@ -170,5 +172,45 @@ export const getDecksByCategoryController = async (
 		return res.status(200).json(decks);
 	} catch (err) {
 		next(err);
+	}
+};
+
+export const updateDeckPublicController = async (req: Request, res: Response) => {
+	try {
+		const id = parseInt(req.params.id, 10);
+		if (isNaN(id)) {
+			return res.status(400).json({ error: 'Invalid question ID' });
+		}
+
+		const question = await updateDeckPublic(id);
+
+		if (!question) {
+			return res.status(404).json({ error: 'Question not found' });
+		}
+
+		res.json(question);
+	} catch (error) {
+		console.error('Error updating question to Public:', error);
+		res.status(500).json({ error: 'Failed to update question to Public' });
+	}
+};
+
+export const updateDeckPrivateController = async (req: Request, res: Response) => {
+	try {
+		const id = parseInt(req.params.id, 10);
+		if (isNaN(id)) {
+			return res.status(400).json({ error: 'Invalid question ID' });
+		}
+
+		const question = await updateDeckPrivate(id);
+
+		if (!question) {
+			return res.status(404).json({ error: 'Question not found' });
+		}
+
+		res.json(question);
+	} catch (error) {
+		console.error('Error updating question to Private:', error);
+		res.status(500).json({ error: 'Failed to update question to Private' });
 	}
 };

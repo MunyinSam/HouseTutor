@@ -7,6 +7,8 @@ import {
 	getAllDecksController,
 	getDecksByOwnerIdController,
 	getDecksByCategoryController,
+	updateDeckPublicController,
+	updateDeckPrivateController,
 } from '../controllers/decks.controller';
 
 const router = Router();
@@ -31,5 +33,11 @@ router.patch('/:id', updateDeckController);
 
 // DELETE /api/v1/decks/:id - Delete deck
 router.delete('/:id', deleteDeckController);
+
+// PATCH
+router.patch('/public/:id', updateDeckPublicController);
+
+// PATCH
+router.patch('/private/:id', updateDeckPrivateController);
 
 export default router;
