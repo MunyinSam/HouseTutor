@@ -165,7 +165,7 @@ export default function QuestionPage() {
 										{question.imagePath && (
 											<div className="mb-4">
 												<img
-													src={`http://localhost:8000${question.imagePath}`}
+													src={`${process.env.NEXT_PUBLIC_BACKEND_HOST}${question.imagePath}`}
 													alt="Question"
 													className="max-w-full rounded border shadow-sm"
 												/>

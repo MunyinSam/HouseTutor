@@ -304,7 +304,7 @@ export default function EditDeckPage() {
 						<CardContent>
 							{card.imagePath && (
 								<img
-									src={`http://localhost:8000${card.imagePath}`}
+									src={`${process.env.NEXT_PUBLIC_BACKEND_HOST}${card.imagePath}`}
 									alt="Question preview"
 									className="max-w-full h-32 object-cover rounded mb-2"
 								/>
@@ -394,7 +394,7 @@ export default function EditDeckPage() {
 											Current image:
 										</p>
 										<img
-											src={`http://localhost:8000${selectedCard.imagePath}`}
+											src={`${process.env.NEXT_PUBLIC_BACKEND_HOST}${selectedCard.imagePath}`}
 											alt="Current question"
 											className="max-w-xs rounded border"
 										/>
