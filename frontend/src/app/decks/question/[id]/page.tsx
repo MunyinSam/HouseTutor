@@ -165,7 +165,7 @@ export default function QuestionPage() {
 										{question.imagePath && (
 											<div className="mb-4">
 												<img
-													src={`${process.env.NEXT_PUBLIC_BACKEND_HOST}${question.imagePath}`}
+													src={`/api/images/questions/${question.imagePath.split('/').pop()}`}
 													alt="Question"
 													className="max-w-full rounded border shadow-sm"
 												/>
@@ -300,7 +300,7 @@ export default function QuestionPage() {
 																{subQuestion.imagePath && (
 																	<div className="mb-4">
 																		<img
-																			src={`http://localhost:8000${subQuestion.imagePath}`}
+																			src={`/api/images/questions/${subQuestion.imagePath.split('/').pop()}`}
 																			alt="Sub-question"
 																			className="max-w-md rounded border shadow-sm"
 																		/>

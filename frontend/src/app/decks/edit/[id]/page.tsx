@@ -304,7 +304,7 @@ export default function EditDeckPage() {
 						<CardContent>
 							{card.imagePath && (
 								<img
-									src={`${process.env.NEXT_PUBLIC_BACKEND_HOST}${card.imagePath}`}
+									src={`/api/images/questions/${card.imagePath.split('/').pop()}`}
 									alt="Question preview"
 									className="max-w-full h-32 object-cover rounded mb-2"
 								/>
