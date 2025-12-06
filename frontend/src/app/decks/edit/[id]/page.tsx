@@ -394,7 +394,7 @@ export default function EditDeckPage() {
 											Current image:
 										</p>
 										<img
-											src={`${process.env.NEXT_PUBLIC_BACKEND_HOST}${selectedCard.imagePath}`}
+											src={`http://localhost:8000${selectedCard.imagePath}`}
 											alt="Current question"
 											className="max-w-xs rounded border"
 										/>
