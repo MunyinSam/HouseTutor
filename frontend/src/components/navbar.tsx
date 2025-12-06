@@ -150,14 +150,22 @@ export function Navbar() {
 			{isMenuOpen && (
 				<div className="md:hidden flex flex-col items-start px-4 pb-4 space-y-2 bg-gray-50 border-t border-gray-200">
 					<Link
-						href="/blocks"
+						href="/decks/all"
 						className="w-full text-left text-black hover:bg-gray-100 py-2 px-2 rounded-md"
 						onClick={() => setIsMenuOpen(false)} // Close menu on click
 					>
 						Decks
 					</Link>
+
 					<Link
-						href="/blocks/create"
+						href="/decks"
+						className="w-full text-left text-black hover:bg-gray-100 py-2 px-2 rounded-md"
+						onClick={() => setIsMenuOpen(false)} // Close menu on click
+					>
+						Your Decks
+					</Link>
+					<Link
+						href="/decks/create"
 						className="w-full text-left text-black hover:bg-gray-100 py-2 px-2 rounded-md"
 						onClick={() => setIsMenuOpen(false)}
 					>

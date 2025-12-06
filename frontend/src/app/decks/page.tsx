@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useGetDecksByOwnerId } from '@/services/deck.service';
+import { useDeleteDeck, useGetDecksByOwnerId } from '@/services/deck.service';
 import {
 	Card,
 	CardDescription,
@@ -19,6 +19,17 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { LayoutGrid, Layers, Edit, BookOpen, CreditCard } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -31,6 +42,9 @@ export default function DeckPage() {
 	const { data: decks, isLoading } = useGetDecksByOwnerId(
 		userId || undefined
 	);
+
+	const { mutate: deleteDeck, isSuccess: isDeleteSuccess } = useDeleteDeck();
+	const [deleteOpen, setDeleteOpen] = useState(false);
 
 	const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
@@ -63,6 +77,24 @@ export default function DeckPage() {
 		}
 	};
 
+	const handleDeleteDeck = () => {
+		if (selectedDeckId) {
+			deleteDeck(selectedDeckId, {
+				onSuccess: () => {
+					// Now, upon success:
+					setDeleteOpen(false); // 1. Close the AlertDialog
+					setSelectedDeckId(null); // 2. Close the main Dialog (clearing the selection)
+				},
+				onError: (error) => {
+					console.error('Failed to delete deck:', error);
+					// Maybe just close the confirmation dialog on error,
+					// leaving the main menu open for the user to try again
+					setDeleteOpen(false);
+				},
+			});
+		}
+	};
+
 	if (!session) {
 		return (
 			<div className="min-h-screen p-8 bg-gray-50 flex items-center justify-center">
@@ -78,7 +110,7 @@ export default function DeckPage() {
 			<header className="mb-8">
 				<h1 className="text-3xl font-bold text-gray-900 flex items-center">
 					<LayoutGrid className="w-8 h-8 mr-2 text-blue-600" />
-					Your Flashcard Decks ({filteredDecks?.length || 0})
+					Your Decks ({filteredDecks?.length || 0})
 				</h1>
 				<p className="text-gray-600">
 					Click on a deck to see available actions.
@@ -187,9 +219,45 @@ export default function DeckPage() {
 							<CreditCard className="w-4 h-4 mr-2" />
 							Study Flashcards
 						</Button>
+
+						<Button
+							onClick={() => {
+								setDeleteOpen(true);
+							}}
+							variant="outline"
+							className="w-full justify-start bg-red-500 hover:bg-red-600 text-white"
+						>
+							<Edit className="w-4 h-4 mr-2" />
+							Delete Deck
+						</Button>
 					</div>
 				</DialogContent>
 			</Dialog>
+
+			<AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						{/* Use AlertDialogTitle */}
+						<AlertDialogTitle>
+							Are you absolutely sure?
+						</AlertDialogTitle>
+						<AlertDialogDescription>
+							This action cannot be undone. This will permanently
+							delete the deck: **{selectedDeck?.title}**.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+
+						<AlertDialogAction
+							onClick={handleDeleteDeck}
+							className="bg-red-500 hover:bg-red-600 text-white"
+						>
+							Continue
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }

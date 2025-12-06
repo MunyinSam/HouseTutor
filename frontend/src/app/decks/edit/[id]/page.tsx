@@ -484,7 +484,7 @@ export default function EditDeckPage() {
 													type="button"
 													variant="ghost"
 													size="sm"
-													onClick={() =>
+														onClick={() =>
 														removeNewSubQuestionField(
 															index
 														)

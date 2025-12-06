@@ -70,7 +70,7 @@ export default function DeckPage() {
 			<header className="mb-8">
 				<h1 className="text-3xl font-bold text-gray-900 flex items-center">
 					<LayoutGrid className="w-8 h-8 mr-2 text-blue-600" />
-					Your Flashcard Decks ({filteredDecks?.length || 0})
+					Public Decks ({filteredDecks?.length || 0})
 				</h1>
 				<p className="text-gray-600">
 					Click on a deck to see available actions.

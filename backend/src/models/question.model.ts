@@ -163,3 +163,9 @@ export const getSubQuestionsByParentId = async (parentId: number) => {
 	const result = await pool.query(queryText, values);
 	return result.rows;
 };
+
+export const updateQuestionPublic = async (deckId: number) => {
+	const pool: Pool = await getDbConnection();
+
+	
+}
