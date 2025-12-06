@@ -2,29 +2,40 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../../uploads/questions');
-if (!fs.existsSync(uploadsDir)) {
-	fs.mkdirSync(uploadsDir, { recursive: true });
+// Use absolute path for uploads directory
+const uploadsDir = path.join(process.cwd(), 'uploads', 'questions');
+
+// Ensure uploads directory exists with better error handling
+try {
+	if (!fs.existsSync(uploadsDir)) {
+		fs.mkdirSync(uploadsDir, { recursive: true });
+		console.log(`Created uploads directory: ${uploadsDir}`);
+	} else {
+		console.log(`Uploads directory exists: ${uploadsDir}`);
+	}
+} catch (error) {
+	console.error('Error creating uploads directory:', error);
 }
 
 // Configure storage
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
+		console.log(`Saving file to: ${uploadsDir}`);
 		cb(null, uploadsDir);
 	},
 	filename: (req, file, cb) => {
 		// Generate unique filename with sanitization
 		const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
 		const ext = path.extname(file.originalname);
-		// Sanitize the original name: remove special chars, spaces, keep only alphanumeric and dashes
 		const originalName = path.basename(file.originalname, ext);
 		const sanitizedName = originalName
 			.replace(/[^a-zA-Z0-9]/g, '-')
 			.replace(/-+/g, '-')
 			.toLowerCase()
-			.substring(0, 50); // Limit length
-		cb(null, `${sanitizedName}-${uniqueSuffix}${ext}`);
+			.substring(0, 50);
+		const filename = `${sanitizedName}-${uniqueSuffix}${ext}`;
+		console.log(`Generated filename: ${filename}`);
+		cb(null, filename);
 	},
 });
 

@@ -36,6 +36,8 @@ services:
         env_file:
             - path: .env
               required: true
+        volumes:
+            - ./backend/uploads:/app/uploads
         command: >
             sh -c "
               echo '--- [Backend] Database check complete. Running Prisma migrations...';
@@ -59,4 +61,4 @@ services:
             - backend
 
 networks:
-  prisma-network:
+    prisma-network:
