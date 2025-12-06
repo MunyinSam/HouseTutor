@@ -25,7 +25,7 @@ export const createQuestionController = async (req: Request, res: Response) => {
 		// Get imagePath from uploaded file or body
 		const imagePath = req.file
 			? `/uploads/questions/${req.file.filename}`
-			: req.body.imagePath || null;
+			: req.body.imagePath || '';
 
 		const parsed = questionCreateSchema.parse({
 			...req.body,
