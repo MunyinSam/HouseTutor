@@ -304,7 +304,9 @@ export default function EditDeckPage() {
 						<CardContent>
 							{card.imagePath && (
 								<img
-									src={`/api/images/questions/${card.imagePath.split('/').pop()}`}
+									src={`/api/images/questions/${card.imagePath
+										.split('/')
+										.pop()}`}
 									alt="Question preview"
 									className="max-w-full h-32 object-cover rounded mb-2"
 								/>
@@ -394,7 +396,9 @@ export default function EditDeckPage() {
 											Current image:
 										</p>
 										<img
-											src={`${process.env.NEXT_PUBLIC_BACKEND_HOST}${selectedCard.imagePath}`}
+											src={`/api/images/questions/${selectedCard.imagePath
+												.split('/')
+												.pop()}`}
 											alt="Current question"
 											className="max-w-xs rounded border"
 										/>
@@ -484,7 +488,7 @@ export default function EditDeckPage() {
 													type="button"
 													variant="ghost"
 													size="sm"
-														onClick={() =>
+													onClick={() =>
 														removeNewSubQuestionField(
 															index
 														)
