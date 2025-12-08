@@ -89,15 +89,15 @@ export function Navbar() {
 									<DropdownMenuLabel className="text-xs">
 										Menu
 									</DropdownMenuLabel>
-									<DropdownMenuItem className="hover:bg-gray-200">
-										<Link
-											href="/profile"
-											className="text-black/80 transition-colors hover:text-black text-sm font-medium hover:opacity-90"
-										>
-											{' '}
+									<Link
+										href="/profile"
+										className="text-black/80 transition-colors hover:text-black text-sm font-medium hover:opacity-90"
+									>
+										<DropdownMenuItem className="hover:bg-gray-200">
 											Profile
-										</Link>
-									</DropdownMenuItem>
+										</DropdownMenuItem>
+									</Link>
+
 									<DropdownMenuItem
 										className="hover:bg-gray-200"
 										onClick={() =>

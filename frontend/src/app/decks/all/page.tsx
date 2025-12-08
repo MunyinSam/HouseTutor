@@ -59,7 +59,7 @@ export default function DeckPage() {
 		return (
 			<div className="min-h-screen p-8 bg-gray-50 flex items-center justify-center">
 				<p className="text-xl text-gray-600">
-					Please sign in to view your decks
+					Please sign in to view decks
 				</p>
 			</div>
 		);
