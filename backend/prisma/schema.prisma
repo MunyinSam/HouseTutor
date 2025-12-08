@@ -44,6 +44,7 @@ model Question {
   parent       Question?  @relation("SubQuestions", fields: [parentId], references: [id], onDelete: Cascade)
   subQuestions Question[] @relation("SubQuestions")
   imagePath    String?
+  explanation  String?
 
   @@index([deckId])
   @@map("questions")

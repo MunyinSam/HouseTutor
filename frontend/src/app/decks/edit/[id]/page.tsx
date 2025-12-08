@@ -34,6 +34,7 @@ import { Textarea } from '@/components/ui/textarea';
 interface NewSubQuestion {
 	front: string;
 	back: string;
+	explanation?: string;
 }
 
 export default function EditDeckPage() {
@@ -51,6 +52,7 @@ export default function EditDeckPage() {
 	const [editFront, setEditFront] = useState('');
 	const [editBack, setEditBack] = useState('');
 	const [editImage, setEditImage] = useState<File | null>(null);
+	const [editExplanation, setEditExplanation] = useState('');
 	const [editedSubQuestions, setEditedSubQuestions] = useState<Question[]>(
 		[]
 	);
@@ -62,6 +64,7 @@ export default function EditDeckPage() {
 	const [addFront, setAddFront] = useState('');
 	const [addBack, setAddBack] = useState('');
 	const [addImage, setAddImage] = useState<File | null>(null);
+	const [addExplanation, setAddExplanation] = useState('');
 	const [addSubQuestions, setAddSubQuestions] = useState<NewSubQuestion[]>(
 		[]
 	);
@@ -77,6 +80,7 @@ export default function EditDeckPage() {
 			setEditFront(selectedCard.front);
 			setEditBack(selectedCard.back);
 			setEditImage(null);
+			setEditExplanation(selectedCard.explanation || '');
 			setEditedSubQuestions(
 				selectedCard.subQuestions ? [...selectedCard.subQuestions] : []
 			);
@@ -163,6 +167,7 @@ export default function EditDeckPage() {
 					front: editFront,
 					back: editBack,
 					image: editImage,
+					explanation: editExplanation,
 				},
 			});
 
@@ -173,6 +178,7 @@ export default function EditDeckPage() {
 					body: {
 						front: subQ.front,
 						back: subQ.back,
+						explanation: subQ.explanation
 					},
 				});
 			}
@@ -201,7 +207,7 @@ export default function EditDeckPage() {
 	const handleAddQuestion = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (!addFront.trim() || !addBack.trim()) {
+		if (!addFront.trim() || !addBack.trim() || !addExplanation.trim()) {
 			alert('Please fill in both front and back fields');
 			return;
 		}
@@ -214,6 +220,7 @@ export default function EditDeckPage() {
 				deckId: deckId,
 				parentId: null,
 				image: addImage,
+				explanation: addExplanation,
 			});
 
 			// Create sub-questions if any
@@ -222,6 +229,7 @@ export default function EditDeckPage() {
 					await createQuestionMutation.mutateAsync({
 						front: subQ.front,
 						back: subQ.back,
+						explanation: subQ.explanation,
 						deckId: deckId,
 						parentId: newQuestion.id,
 					});
@@ -606,8 +614,24 @@ export default function EditDeckPage() {
 								value={addBack}
 								onChange={(e) => setAddBack(e.target.value)}
 								placeholder="Enter the answer here"
-								rows={5}
+								rows={3}
 								required
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<label
+								htmlFor="add-explanation"
+								className="font-medium text-sm"
+							>
+								Explanation (Optional)
+							</label>
+							<Textarea
+								id="add-back"
+								value={addExplanation}
+								onChange={(e) => setAddExplanation(e.target.value)}
+								placeholder="Enter the explanation here"
+								rows={5}
 							/>
 						</div>
 

@@ -13,6 +13,7 @@ export interface Question {
 	parentId: number | null;
 	imagePath?: string | null;
 	subQuestions?: Question[];
+	explanation?: string | null;
 }
 
 export interface CreateQuestionBody {
@@ -21,6 +22,7 @@ export interface CreateQuestionBody {
 	deckId: number;
 	parentId?: number | null;
 	image?: File | null;
+	explanation?: string | null;
 }
 
 export interface UpdateQuestionBody {
@@ -29,6 +31,7 @@ export interface UpdateQuestionBody {
 	deckId?: number;
 	parentId?: number | null;
 	image?: File | null;
+	explanation?: string | null;
 }
 
 // POST - Create question
@@ -45,6 +48,9 @@ export const useCreateQuestion = () => {
 			}
 			if (body.image) {
 				formData.append('image', body.image);
+			}
+			if (body.explanation !== undefined && body.explanation !== null) {
+				formData.append('explanation', body.explanation);
 			}
 
 			const { data } = await instance.post('/', formData, {
@@ -79,6 +85,9 @@ export const useUpdateQuestion = () => {
 			}
 			if (body.image) {
 				formData.append('image', body.image);
+			}
+			if (body.explanation !== undefined && body.explanation !== null) {
+				formData.append('explanation', body.explanation);
 			}
 
 			const { data } = await instance.patch(`/${id}`, formData, {

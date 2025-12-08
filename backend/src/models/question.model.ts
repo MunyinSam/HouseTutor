@@ -7,16 +7,17 @@ export const createQuestion = async (
 	back: string,
 	deckId: number,
 	parentId: number | null,
-	imagePath: string
+	imagePath: string,
+	explanation: string | null
 ) => {
 	const pool: Pool = await getDbConnection();
 	const queryText = `
-        INSERT INTO questions (front, back, "deckId", "parentId", "imagePath")
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO questions (front, back, "deckId", "parentId", "imagePath", "explanation")
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *;
     `;
 
-	const values = [front, back, deckId, parentId, imagePath];
+	const values = [front, back, deckId, parentId, imagePath, explanation];
 	const result = await pool.query(queryText, values);
 	return result.rows[0];
 };
@@ -28,7 +29,8 @@ export const updateQuestion = async (
 	back?: string,
 	deckId?: number,
 	parentId?: number | null,
-	imagePath?: string
+	imagePath?: string,
+	explanation?: string | null
 ) => {
 	const pool: Pool = await getDbConnection();
 
@@ -56,6 +58,10 @@ export const updateQuestion = async (
 	if (imagePath !== undefined) {
 		updates.push(`"imagePath" = $${paramCount++}`);
 		values.push(imagePath);
+	}
+	if (explanation !== undefined) {
+		updates.push(`"explanation" = $${paramCount++}`);
+		values.push(explanation);
 	}
 
 	if (updates.length === 0) {

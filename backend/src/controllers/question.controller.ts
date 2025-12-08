@@ -9,6 +9,7 @@ const questionCreateSchema = z.object({
 	deckId: z.number().int().positive('Deck ID must be a positive integer'),
 	parentId: z.number().int().positive().nullable().optional(),
 	imagePath: z.string().optional(),
+	explanation: z.string().optional(),
 });
 
 const questionUpdateSchema = z.object({
@@ -17,6 +18,7 @@ const questionUpdateSchema = z.object({
 	deckId: z.number().int().positive().optional(),
 	parentId: z.number().int().positive().nullable().optional(),
 	imagePath: z.string().optional(),
+	explanation: z.string().optional(),
 });
 
 // POST - Create Question
@@ -41,7 +43,8 @@ export const createQuestionController = async (req: Request, res: Response) => {
 			parsed.back,
 			parsed.deckId,
 			parsed.parentId ?? null,
-			parsed.imagePath || ''
+			parsed.imagePath || '',
+			parsed.explanation ?? null
 		);
 		res.status(201).json(question);
 	} catch (error) {
@@ -81,7 +84,8 @@ export const updateQuestionController = async (req: Request, res: Response) => {
 			parsed.back,
 			parsed.deckId,
 			parsed.parentId,
-			parsed.imagePath
+			parsed.imagePath,
+			parsed.explanation ?? null
 		);
 
 		if (!question) {
@@ -195,5 +199,3 @@ export const getSubQuestionsByParentIdController = async (
 		res.status(500).json({ error: 'Failed to fetch sub-questions' });
 	}
 };
-
-
