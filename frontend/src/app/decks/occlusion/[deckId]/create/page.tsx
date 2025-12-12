@@ -66,7 +66,7 @@ export default function CreateOcclusionPage({ params }: PageProps) {
 		}
 	}, [imageFile]);
 
-	console.log('test');
+	console.log('test 1');
 
 	// Draw canvas
 	useEffect(() => {
