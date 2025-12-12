@@ -97,7 +97,7 @@ export default function EditDeckPage() {
 	// Handle sub-question changes for existing sub-questions
 	const handleSubQuestionChange = (
 		subQId: number,
-		field: 'front' | 'back',
+		field: 'front' | 'back' | 'explanation',
 		value: string
 	) => {
 		setEditedSubQuestions((prev) =>
@@ -110,7 +110,7 @@ export default function EditDeckPage() {
 	// Handle new sub-question changes (in edit dialog)
 	const handleNewSubQuestionChange = (
 		index: number,
-		field: 'front' | 'back',
+		field: 'front' | 'back' | 'explanation',
 		value: string
 	) => {
 		setNewSubQuestions((prev) =>
@@ -178,7 +178,7 @@ export default function EditDeckPage() {
 					body: {
 						front: subQ.front,
 						back: subQ.back,
-						explanation: subQ.explanation
+						explanation: subQ.explanation,
 					},
 				});
 			}
@@ -387,6 +387,23 @@ export default function EditDeckPage() {
 										setEditBack(e.target.value)
 									}
 									placeholder="Enter the answer here"
+									rows={3}
+								/>
+							</div>
+							<div className="space-y-2">
+								<label
+									htmlFor="back"
+									className="font-medium text-sm"
+								>
+									Explanation (Optional)
+								</label>
+								<Textarea
+									id="back"
+									value={editExplanation}
+									onChange={(e) =>
+										setEditExplanation(e.target.value)
+									}
+									placeholder="Enter the explanation here"
 									rows={5}
 								/>
 							</div>
@@ -472,6 +489,20 @@ export default function EditDeckPage() {
 												rows={3}
 												className="mt-1"
 											/>
+											<Textarea
+												id={`sub-explanation-${subQ.id}`}
+												value={subQ.explanation}
+												onChange={(e) =>
+													handleSubQuestionChange(
+														subQ.id,
+														'explanation',
+														e.target.value
+													)
+												}
+												placeholder="Sub-Question Explanation"
+												rows={2}
+												className="mt-1"
+											/>
 										</div>
 									))}
 								</div>
@@ -528,6 +559,18 @@ export default function EditDeckPage() {
 													)
 												}
 												placeholder="Sub-Question Back"
+												rows={3}
+											/>
+											<Textarea
+												value={subQ.explanation}
+												onChange={(e) =>
+													handleNewSubQuestionChange(
+														index,
+														'explanation',
+														e.target.value
+													)
+												}
+												placeholder="Sub-Question Explanation"
 												rows={3}
 											/>
 										</div>
@@ -629,7 +672,9 @@ export default function EditDeckPage() {
 							<Textarea
 								id="add-back"
 								value={addExplanation}
-								onChange={(e) => setAddExplanation(e.target.value)}
+								onChange={(e) =>
+									setAddExplanation(e.target.value)
+								}
 								placeholder="Enter the explanation here"
 								rows={5}
 							/>

@@ -13,7 +13,7 @@ export interface Question {
 	parentId: number | null;
 	imagePath?: string | null;
 	subQuestions?: Question[];
-	explanation?: string | null;
+	explanation?: string;
 }
 
 export interface CreateQuestionBody {

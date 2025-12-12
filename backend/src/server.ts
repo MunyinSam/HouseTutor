@@ -11,6 +11,7 @@ import userRouter from './routes/user.route';
 import questionRouter from './routes/question.route';
 import flashcardRouter from './routes/flashcard.route';
 import reviewRouter from './routes/review.route';
+import imageOcclusionRouter from './routes/imageOcclusion.route';
 
 const PORT = env.port;
 
@@ -44,6 +45,7 @@ apiV1.use('/deck', authMiddleware, deckRouter);
 apiV1.use('/question', authMiddleware, questionRouter);
 apiV1.use('/flashcard', authMiddleware, flashcardRouter);
 apiV1.use('/review', authMiddleware, reviewRouter);
+apiV1.use('/occlusion', authMiddleware, imageOcclusionRouter);
 
 app.use('/api/v1', apiV1);
 

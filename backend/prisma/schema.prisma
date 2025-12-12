@@ -18,16 +18,17 @@ model User {
 }
 
 model Deck {
-  id          Int        @id @default(autoincrement())
-  title       String     @unique
-  description String?
-  category    String
-  ownerId     String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime?  @updatedAt
-  owner       User       @relation(fields: [ownerId], references: [id])
-  questions   Question[]
-  public      Boolean    @default(false)
+  id              Int              @id @default(autoincrement())
+  title           String           @unique
+  description     String?
+  category        String
+  ownerId         String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime?        @updatedAt
+  owner           User             @relation(fields: [ownerId], references: [id])
+  questions       Question[]
+  public          Boolean          @default(false)
+  imageOcclusions ImageOcclusion[]
 
   @@map("decks")
 }
@@ -73,4 +74,19 @@ model Review {
 
   @@unique([userId, flashcardId])
   @@map("reviews")
+}
+
+model ImageOcclusion {
+  id         Int       @id @default(autoincrement())
+  deckId     Int
+  deck       Deck      @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  title      String?
+  imagePath  String
+  occlusions Json      // Array of {id, x, y, width, height, label, answer}
+  mode       String    @default("all") // "all" = reveal all at once, "one" = one by one
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([deckId])
+  @@map("image_occlusions")
 }

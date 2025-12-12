@@ -30,7 +30,14 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { LayoutGrid, Layers, Edit, BookOpen, CreditCard } from 'lucide-react';
+import {
+	LayoutGrid,
+	Layers,
+	Edit,
+	BookOpen,
+	CreditCard,
+	Image as ImageIcon,
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { GoogleSession } from '@/types';
@@ -74,6 +81,12 @@ export default function DeckPage() {
 	const handleGoToFlashcards = () => {
 		if (selectedDeckId) {
 			router.push(`/decks/flashcard/${selectedDeckId}`);
+		}
+	};
+
+	const handleGoToOcclusions = () => {
+		if (selectedDeckId) {
+			router.push(`/decks/occlusion/${selectedDeckId}`);
 		}
 	};
 
@@ -218,6 +231,15 @@ export default function DeckPage() {
 						>
 							<CreditCard className="w-4 h-4 mr-2" />
 							Study Flashcards
+						</Button>
+
+						<Button
+							onClick={handleGoToOcclusions}
+							variant="outline"
+							className="w-full justify-start bg-purple-600 hover:bg-purple-700 text-white"
+						>
+							<ImageIcon className="w-4 h-4 mr-2" />
+							Image Occlusions
 						</Button>
 
 						<Button
