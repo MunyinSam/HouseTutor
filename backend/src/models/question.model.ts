@@ -148,7 +148,7 @@ export const getQuestionsByDeckId = async (deckId: number) => {
         LEFT JOIN questions sq ON sq."parentId" = q.id
         WHERE q."deckId" = $1 AND q."parentId" IS NULL
         GROUP BY q.id
-        ORDER BY q.id ASC;
+        ORDER BY RANDOM();
     `;
 
 	const values = [deckId];

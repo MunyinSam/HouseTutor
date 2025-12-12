@@ -63,7 +63,7 @@ export const createImageOcclusionController = async (
 		res.status(201).json(imageOcclusion);
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			return res.status(400).json({ errors: error.errors });
+			return res.status(400).json({ errors: error });
 		}
 		console.error('Error creating image occlusion:', error);
 		res.status(500).json({ error: 'Failed to create image occlusion' });
@@ -115,7 +115,7 @@ export const updateImageOcclusionController = async (
 		res.json(imageOcclusion);
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			return res.status(400).json({ errors: error.errors });
+			return res.status(400).json({ errors: error });
 		}
 		console.error('Error updating image occlusion:', error);
 		res.status(500).json({ error: 'Failed to update image occlusion' });
