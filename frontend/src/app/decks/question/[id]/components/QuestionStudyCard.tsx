@@ -1,7 +1,7 @@
 'use client';
 
-import { Check, X } from 'lucide-react';
-import { Question } from '@/services/question.service';
+import { Check, X, Trash2 } from 'lucide-react';
+import { Question, useDeleteQuestion } from '@/services/question.service';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ interface QuestionStudyCardProps {
 	showAllAnswers: boolean;
 	onAnswerChange: (questionId: number, value: string) => void;
 	onSubmitAnswer: (questionId: number, correctAnswer: string) => void;
+	onDelete?: (questionId: number) => void;
 }
 
 export function QuestionStudyCard({
@@ -21,8 +22,28 @@ export function QuestionStudyCard({
 	showAllAnswers,
 	onAnswerChange,
 	onSubmitAnswer,
+	onDelete,
 }: QuestionStudyCardProps) {
+	const deleteMutation = useDeleteQuestion();
 	const mainAnswer = answers[question.id];
+
+	const handleDelete = async () => {
+		if (confirm('Are you sure you want to delete this question?')) {
+			await deleteMutation.mutateAsync(question.id);
+			onDelete?.(question.id);
+		}
+	};
+
+	const handleKeyDown = (
+		e: React.KeyboardEvent<HTMLInputElement>,
+		questionId: number,
+		correctAnswer: string
+	) => {
+		if (e.key === 'Enter' && !mainAnswer?.isSubmitted) {
+			e.preventDefault();
+			onSubmitAnswer(questionId, correctAnswer);
+		}
+	};
 	const showMainAnswer =
 		showAllAnswers &&
 		mainAnswer?.isSubmitted &&
@@ -41,14 +62,25 @@ export function QuestionStudyCard({
 				}`}
 			>
 				<CardHeader>
-					<CardTitle className="text-xl flex items-center gap-2">
-						{question.front}
-					</CardTitle>
+					<div className="flex items-center justify-between">
+						<CardTitle className="text-xl flex items-center gap-2">
+							{question.front}
+						</CardTitle>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="text-red-500 hover:text-red-700 hover:bg-red-50"
+							onClick={handleDelete}
+							disabled={deleteMutation.isPending}
+						>
+							<Trash2 className="w-4 h-4" />
+						</Button>
+					</div>
 				</CardHeader>
 				<CardContent className="space-y-3">
 					{/* Display image if exists */}
 					{question.imagePath && (
-						<div className="mb-4">
+						<div className="mb-4 max-w-150">
 							<img
 								src={`/api/images/questions/${question.imagePath
 									.split('/')
@@ -62,10 +94,13 @@ export function QuestionStudyCard({
 					{/* Answer Input */}
 					<div className="grid col-span-3 gap-2">
 						<Input
-							placeholder="Type your answer..."
+							placeholder="Type your answer... (press Enter to check)"
 							value={mainAnswer?.userAnswer || ''}
 							onChange={(e) =>
 								onAnswerChange(question.id, e.target.value)
+							}
+							onKeyDown={(e) =>
+								handleKeyDown(e, question.id, question.back)
 							}
 							disabled={mainAnswer?.isSubmitted}
 							className={
@@ -80,10 +115,7 @@ export function QuestionStudyCard({
 							onClick={() =>
 								onSubmitAnswer(question.id, question.back)
 							}
-							disabled={
-								!mainAnswer?.userAnswer ||
-								mainAnswer?.isSubmitted
-							}
+							disabled={mainAnswer?.isSubmitted}
 						>
 							Check
 						</Button>
@@ -210,7 +242,7 @@ function SubQuestionList({
 
 							<div className="grid col-span-3 gap-2">
 								<Input
-									placeholder="Type your answer..."
+									placeholder="Type your answer... (press Enter to check)"
 									value={subAnswer?.userAnswer || ''}
 									onChange={(e) =>
 										onAnswerChange(
@@ -218,6 +250,18 @@ function SubQuestionList({
 											e.target.value
 										)
 									}
+									onKeyDown={(e) => {
+										if (
+											e.key === 'Enter' &&
+											!subAnswer?.isSubmitted
+										) {
+											e.preventDefault();
+											onSubmitAnswer(
+												subQuestion.id,
+												subQuestion.back
+											);
+										}
+									}}
 									disabled={subAnswer?.isSubmitted}
 									className={
 										subAnswer?.isSubmitted
@@ -234,10 +278,7 @@ function SubQuestionList({
 											subQuestion.back
 										)
 									}
-									disabled={
-										!subAnswer?.userAnswer ||
-										subAnswer?.isSubmitted
-									}
+									disabled={subAnswer?.isSubmitted}
 									size="sm"
 								>
 									Check

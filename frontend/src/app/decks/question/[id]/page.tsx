@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
 	MessageCircleQuestionMark,
 	ChevronLeft,
@@ -8,7 +8,7 @@ import {
 	ArrowLeft,
 } from 'lucide-react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useGetQuestionsByDeckId } from '@/services/question.service';
+import { useGetQuestionsByDeckId, Question } from '@/services/question.service';
 import { useGetImageOcclusionsByDeckId } from '@/services/imageOcclusion.service';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -37,8 +37,9 @@ export default function QuestionPage() {
 
 	// State
 	const [answers, setAnswers] = useState<Record<number, QuestionAnswer>>({});
-	const [showAllAnswers, setShowAllAnswers] = useState(false);
+	const [showAllAnswers, setShowAllAnswers] = useState(true);
 	const [currentIndex, setCurrentIndex] = useState(0);
+	const cardRef = useRef<HTMLDivElement>(null);
 
 	// Create shuffled study items
 	const studyItems = useMemo(() => {
@@ -95,6 +96,128 @@ export default function QuestionPage() {
 		},
 		[answers]
 	);
+
+	// Handler for question deletion - move to next item or adjust index
+	const handleDelete = useCallback(() => {
+		// If we're at the last item, go back one
+		if (currentIndex >= studyItems.length - 1 && currentIndex > 0) {
+			setCurrentIndex(currentIndex - 1);
+		}
+		// The query will refetch and update studyItems automatically
+	}, [currentIndex, studyItems.length]);
+
+	// Helper to get all question IDs that need answering for current item
+	const getCurrentQuestionIds = useCallback((): {
+		id: number;
+		back: string;
+	}[] => {
+		const currentItem = studyItems[currentIndex];
+		if (!currentItem || currentItem.type !== 'question') return [];
+
+		const question = currentItem.data as Question;
+		const ids = [{ id: question.id, back: question.back }];
+
+		// Add sub-questions
+		if (question.subQuestions) {
+			question.subQuestions.forEach((sq) => {
+				ids.push({ id: sq.id, back: sq.back });
+			});
+		}
+
+		return ids;
+	}, [studyItems, currentIndex]);
+
+	// Check if all questions in current item are submitted
+	const areAllSubmitted = useCallback(() => {
+		const questionIds = getCurrentQuestionIds();
+		return (
+			questionIds.length > 0 &&
+			questionIds.every((q) => answers[q.id]?.isSubmitted)
+		);
+	}, [getCurrentQuestionIds, answers]);
+
+	// Get next unsubmitted question ID
+	const getNextUnsubmittedId = useCallback((): {
+		id: number;
+		back: string;
+	} | null => {
+		const questionIds = getCurrentQuestionIds();
+		return questionIds.find((q) => !answers[q.id]?.isSubmitted) || null;
+	}, [getCurrentQuestionIds, answers]);
+
+	// Global Enter key handler
+	useEffect(() => {
+		const handleGlobalKeyDown = (e: KeyboardEvent) => {
+			// Only handle Enter key
+			if (e.key !== 'Enter') return;
+
+			// Don't handle if user is typing in a text input (let the input handle it)
+			const activeElement = document.activeElement;
+			if (
+				activeElement?.tagName === 'INPUT' ||
+				activeElement?.tagName === 'TEXTAREA'
+			) {
+				return;
+			}
+
+			e.preventDefault();
+
+			const currentItem = studyItems[currentIndex];
+			if (!currentItem) return;
+
+			// For occlusions, just go to next
+			if (currentItem.type === 'occlusion') {
+				if (currentIndex < studyItems.length - 1) {
+					setCurrentIndex((prev) => prev + 1);
+					setTimeout(
+						() =>
+							cardRef.current?.scrollIntoView({
+								behavior: 'smooth',
+								block: 'start',
+							}),
+						100
+					);
+				}
+				return;
+			}
+
+			// For questions
+			if (areAllSubmitted()) {
+				// All answered, go to next item
+				// if (currentIndex < studyItems.length - 1) {
+				// 	setCurrentIndex((prev) => prev + 1);
+				// 	setTimeout(
+				// 		() =>
+				// 			cardRef.current?.scrollIntoView({
+				// 				behavior: 'smooth',
+				// 				block: 'start',
+				// 			}),
+				// 		100
+				// 	);
+				// }
+			} else {
+				// Submit next unsubmitted question
+				const next = getNextUnsubmittedId();
+				if (next) {
+					handleSubmitAnswer(next.id, next.back);
+				}
+			}
+		};
+
+		window.addEventListener('keydown', handleGlobalKeyDown);
+		return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+	}, [
+		studyItems,
+		currentIndex,
+		areAllSubmitted,
+		getNextUnsubmittedId,
+		handleSubmitAnswer,
+	]);
+
+	// Scroll to card when index changes
+	useEffect(() => {
+		cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}, [currentIndex]);
 
 	// --- Loading State ---
 	const isLoading =
@@ -156,13 +279,13 @@ export default function QuestionPage() {
 						htmlFor="showAnswers"
 						className="text-sm font-medium leading-none cursor-pointer"
 					>
-						Show correct answers / Reveal all occlusions
+						Show correct answers
 					</label>
 				</div>
 			</header>
 
 			{/* Current Item Display */}
-			<div className="space-y-6 px-10">
+			<div ref={cardRef} className="space-y-6 px-10">
 				{studyItems.length > 0 && currentItem ? (
 					currentItem.type === 'question' ? (
 						<QuestionStudyCard
@@ -171,11 +294,12 @@ export default function QuestionPage() {
 							showAllAnswers={showAllAnswers}
 							onAnswerChange={handleAnswerChange}
 							onSubmitAnswer={handleSubmitAnswer}
+							onDelete={handleDelete}
 						/>
 					) : (
 						<OcclusionStudyCard
 							occlusion={currentItem.data}
-							showAllAnswers={showAllAnswers}
+							showAllAnswers={false}
 						/>
 					)
 				) : (
