@@ -42,7 +42,7 @@ export const updateImageOcclusion = async (
 	const pool: Pool = await getDbConnection();
 
 	const updates: string[] = [];
-	const values: any[] = [];
+	const values: unknown[] = [];
 	let paramCount = 1;
 
 	if (title !== undefined) {

@@ -56,7 +56,7 @@ export const updateReview = async (
 
 	// Build dynamic update query
 	const updates: string[] = ['"lastReviewedAt" = NOW()'];
-	const values: any[] = [];
+	const values: unknown[] = [];
 	let paramCount = 1;
 
 	if (easinessFactor !== undefined) {

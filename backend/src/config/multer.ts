@@ -1,6 +1,7 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { Request } from 'express';
 
 // Use absolute path for uploads directory
 const uploadsDir = path.join(process.cwd(), 'uploads', 'questions');
@@ -41,7 +42,7 @@ const storage = multer.diskStorage({
 
 // File filter - only allow images
 const fileFilter = (
-	req: any,
+	req: Request,
 	file: Express.Multer.File,
 	cb: multer.FileFilterCallback
 ) => {
