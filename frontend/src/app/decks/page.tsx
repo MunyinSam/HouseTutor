@@ -3,7 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useDeleteDeck, useGetDecksByOwnerId } from '@/services/deck.service';
+import {
+	useDeleteDeck,
+	useGetDecksByOwnerId,
+	useUpdateDeckPublic,
+	useUpdateDeckPrivate,
+} from '@/services/deck.service';
 import {
 	Card,
 	CardDescription,
@@ -38,6 +43,8 @@ import {
 	CreditCard,
 	Image as ImageIcon,
 	Trash2,
+	Globe,
+	Lock,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -53,6 +60,10 @@ export default function DeckPage() {
 	);
 
 	const { mutate: deleteDeck, isSuccess: isDeleteSuccess } = useDeleteDeck();
+	const { mutate: setPublic, isPending: isSettingPublic } =
+		useUpdateDeckPublic();
+	const { mutate: setPrivate, isPending: isSettingPrivate } =
+		useUpdateDeckPrivate();
 	const [deleteOpen, setDeleteOpen] = useState(false);
 
 	const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
@@ -96,6 +107,15 @@ export default function DeckPage() {
 	const handleGoToOcclusions = () => {
 		if (selectedDeckId) {
 			router.push(`/decks/occlusion/${selectedDeckId}`);
+		}
+	};
+
+	const handleTogglePublic = (checked: boolean) => {
+		if (!selectedDeckId) return;
+		if (checked) {
+			setPublic(selectedDeckId);
+		} else {
+			setPrivate(selectedDeckId);
 		}
 	};
 
@@ -209,11 +229,38 @@ export default function DeckPage() {
 			>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>{selectedDeck?.title}</DialogTitle>
+						<DialogTitle className="flex items-center justify-between">
+							<span>{selectedDeck?.title}</span>
+						</DialogTitle>
 						<DialogDescription>
 							{selectedDeck?.description || 'No description'}
 						</DialogDescription>
 					</DialogHeader>
+
+					{/* Public/Private Toggle */}
+					<div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+						<div className="flex items-center gap-2">
+							{selectedDeck?.public ? (
+								<Globe className="w-4 h-4 text-green-600" />
+							) : (
+								<Lock className="w-4 h-4 text-gray-500" />
+							)}
+							<span className="text-sm font-medium">
+								{selectedDeck?.public ? 'Public' : 'Private'}
+							</span>
+							<span className="text-xs text-gray-500">
+								{selectedDeck?.public
+									? '- Visible to everyone'
+									: '- Only visible to you'}
+							</span>
+						</div>
+						<Checkbox
+							id="deckPublic"
+							checked={selectedDeck?.public || false}
+							onCheckedChange={handleTogglePublic}
+							disabled={isSettingPublic || isSettingPrivate}
+						/>
+					</div>
 
 					<div className="space-y-3 mt-4">
 						<Button
@@ -225,7 +272,7 @@ export default function DeckPage() {
 							Edit Deck
 						</Button>
 
-						<div className="space-y-2">
+						<div className="grid grid-cols-2">
 							<Button
 								onClick={handleGoToQuestions}
 								variant="outline"
@@ -234,7 +281,7 @@ export default function DeckPage() {
 								<BookOpen className="w-4 h-4 mr-2" />
 								Study Questions
 							</Button>
-							<div className="flex items-center space-x-2 ml-6">
+							<div className="flex items-center space-x-2 ml-1 justify-between px-3 bg-gray-50 rounded-lg border">
 								<Checkbox
 									id="includeOcclusions"
 									checked={includeOcclusions}
@@ -265,7 +312,7 @@ export default function DeckPage() {
 							className="w-full justify-start bg-purple-600 hover:bg-purple-700 text-white"
 						>
 							<ImageIcon className="w-4 h-4 mr-2" />
-							Image Occlusions
+							Add Image Occlusions (To Question)
 						</Button>
 
 						<Button

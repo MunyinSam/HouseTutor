@@ -14,10 +14,12 @@ import {
 import {
 	useCreateQuestion,
 	useUpdateQuestion,
+	useDeleteQuestion,
 } from '@/services/question.service';
 import { QuestionForm } from './QuestionForm';
 import { SubQuestionList } from './SubQuestionList';
 import { EditQuestionDialogProps, SubQuestionInput } from './types';
+import { Trash2 } from 'lucide-react';
 
 export function EditQuestionDialog({
 	open,
@@ -40,6 +42,10 @@ export function EditQuestionDialog({
 	// Mutations
 	const updateMutation = useUpdateQuestion();
 	const createMutation = useCreateQuestion();
+	const deleteMutation = useDeleteQuestion();
+
+	// Delete confirmation state
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
 	// Reset form when question changes
 	useEffect(() => {
@@ -57,6 +63,7 @@ export function EditQuestionDialog({
 				})) || []
 			);
 			setNewSubQuestions([]);
+			setShowDeleteConfirm(false);
 		}
 	}, [question]);
 
@@ -145,7 +152,21 @@ export function EditQuestionDialog({
 		}
 	};
 
-	const isLoading = updateMutation.isPending || createMutation.isPending;
+	// Handle delete
+	const handleDelete = async () => {
+		if (!question) return;
+		try {
+			await deleteMutation.mutateAsync(question.id);
+			onOpenChange(false);
+		} catch (error) {
+			console.error('Error deleting question:', error);
+		}
+	};
+
+	const isLoading =
+		updateMutation.isPending ||
+		createMutation.isPending ||
+		deleteMutation.isPending;
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
@@ -185,15 +206,53 @@ export function EditQuestionDialog({
 						onRemoveNew={handleRemoveNew}
 					/>
 
-					<DialogFooter>
-						<DialogClose asChild>
-							<Button type="button" variant="outline">
-								Cancel
+					<DialogFooter className="flex flex-row justify-between sm:justify-between">
+						<div>
+							{!showDeleteConfirm ? (
+								<Button
+									type="button"
+									variant="destructive"
+									onClick={() => setShowDeleteConfirm(true)}
+									disabled={isLoading}
+								>
+									<Trash2 className="w-4 h-4 mr-2" />
+									Delete
+								</Button>
+							) : (
+								<div className="flex gap-2">
+									<Button
+										type="button"
+										variant="destructive"
+										onClick={handleDelete}
+										disabled={isLoading}
+									>
+										{deleteMutation.isPending
+											? 'Deleting...'
+											: 'Confirm Delete'}
+									</Button>
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() =>
+											setShowDeleteConfirm(false)
+										}
+										disabled={isLoading}
+									>
+										Cancel
+									</Button>
+								</div>
+							)}
+						</div>
+						<div className="flex gap-2">
+							<DialogClose asChild>
+								<Button type="button" variant="outline">
+									Cancel
+								</Button>
+							</DialogClose>
+							<Button type="submit" disabled={isLoading}>
+								{isLoading ? 'Saving...' : 'Save Changes'}
 							</Button>
-						</DialogClose>
-						<Button type="submit" disabled={isLoading}>
-							{isLoading ? 'Saving...' : 'Save Changes'}
-						</Button>
+						</div>
 					</DialogFooter>
 				</form>
 			</DialogContent>
