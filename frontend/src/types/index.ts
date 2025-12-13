@@ -4,6 +4,7 @@ export interface Deck {
 	description: string | null;
 	category: string;
 	ownerId: string;
+	public: boolean;
 	// Relations: User and Question are often *omitted* in nested types unless explicitly included.
 	// questions?: Question[];
 	// owner?: User;

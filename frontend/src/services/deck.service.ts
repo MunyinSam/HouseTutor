@@ -112,3 +112,33 @@ export const useGetDecksByCategory = (category: string | undefined) => {
 		enabled: !!category,
 	});
 };
+
+// PATCH - Set deck as public
+export const useUpdateDeckPublic = () => {
+	const queryClient = useQueryClient();
+	return useMutation<t.Deck, Error, number>({
+		mutationFn: async (id) => {
+			const { data } = await instance.patch(`/public/${id}`);
+			return data;
+		},
+		onSuccess: (data) => {
+			queryClient.invalidateQueries({ queryKey: ['deck', data.id] });
+			queryClient.invalidateQueries({ queryKey: ['decks'] });
+		},
+	});
+};
+
+// PATCH - Set deck as private
+export const useUpdateDeckPrivate = () => {
+	const queryClient = useQueryClient();
+	return useMutation<t.Deck, Error, number>({
+		mutationFn: async (id) => {
+			const { data } = await instance.patch(`/private/${id}`);
+			return data;
+		},
+		onSuccess: (data) => {
+			queryClient.invalidateQueries({ queryKey: ['deck', data.id] });
+			queryClient.invalidateQueries({ queryKey: ['decks'] });
+		},
+	});
+};

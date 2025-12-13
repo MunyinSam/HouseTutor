@@ -76,6 +76,7 @@ export const getAllDecks = async () => {
 	const pool: Pool = await getDbConnection();
 	const queryText = `
         SELECT * FROM decks
+		WHERE "public" IS TRUE
         ORDER BY "createdAt" DESC;
     `;
 	const result = await pool.query(queryText);
@@ -113,8 +114,8 @@ export const getDecksByCategory = async (category: string) => {
 export const updateDeckPublic = async (deckId: number) => {
 	const pool: Pool = await getDbConnection();
 	const queryText = `
-        UPDATE FROM decks
-		SET public = true
+        UPDATE decks
+		SET "public" = true
         WHERE id = $1
         RETURNING *;
     `;
@@ -127,8 +128,8 @@ export const updateDeckPublic = async (deckId: number) => {
 export const updateDeckPrivate = async (deckId: number) => {
 	const pool: Pool = await getDbConnection();
 	const queryText = `
-        UPDATE FROM decks
-		SET public = false
+        UPDATE decks
+		SET "public" = false
         WHERE id = $1
         RETURNING *;
     `;

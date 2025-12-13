@@ -1,0 +1,214 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useGetDecksByCategory } from '@/services/deck.service';
+import {
+	Card,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+	CardContent,
+} from '@/components/ui/card';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
+import { ArrowLeft, Layers, BookOpen, CreditCard } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+
+export default function CategoryDecksPage() {
+	const router = useRouter();
+	const params = useParams();
+	const { data: session } = useSession();
+
+	const categoryName = decodeURIComponent(params.name as string);
+	const { data: decks, isLoading } = useGetDecksByCategory(categoryName);
+
+	const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
+	const [searchQuery, setSearchQuery] = useState('');
+	const [includeOcclusions, setIncludeOcclusions] = useState(true);
+
+	const selectedDeck = decks?.find((d) => d.id === selectedDeckId);
+
+	const filteredDecks = decks?.filter((deck) =>
+		deck.title.toLowerCase().includes(searchQuery.toLowerCase())
+	);
+
+	const handleDeckClick = (id: number) => {
+		setSelectedDeckId(id);
+	};
+
+	const handleGoToQuestions = () => {
+		if (selectedDeckId) {
+			const params = new URLSearchParams();
+			if (includeOcclusions) {
+				params.set('occlusions', 'true');
+			}
+			router.push(
+				`/decks/question/${selectedDeckId}?${params.toString()}`
+			);
+		}
+	};
+
+	const handleGoToFlashcards = () => {
+		if (selectedDeckId) {
+			router.push(`/decks/flashcard/${selectedDeckId}`);
+		}
+	};
+
+	if (!session) {
+		return (
+			<div className="min-h-screen p-8 bg-gray-50 flex items-center justify-center">
+				<p className="text-xl text-gray-600">
+					Please sign in to view decks
+				</p>
+			</div>
+		);
+	}
+
+	return (
+		<div className="min-h-screen p-8 bg-gray-50">
+			<Button
+				variant="ghost"
+				onClick={() => router.push('/decks/all')}
+				className="mb-4"
+			>
+				<ArrowLeft className="w-4 h-4 mr-2" />
+				Back to Categories
+			</Button>
+
+			<header className="mb-8">
+				<h1 className="text-3xl font-bold text-gray-900 flex items-center">
+					{categoryName}
+				</h1>
+				<p className="text-gray-600">
+					{filteredDecks?.length || 0} deck
+					{filteredDecks?.length !== 1 ? 's' : ''} in this category
+				</p>
+			</header>
+
+			<div className="grid grid-cols-3 gap-5">
+				<Input
+					className="w-full mb-5 col-span-2"
+					placeholder="Search decks"
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+				/>
+				<Button
+					className="bg-blue-200 border border-blue-500 hover:bg-blue-300 text-black"
+					onClick={() => router.push('/decks/create')}
+				>
+					Add Deck
+				</Button>
+			</div>
+
+			{isLoading ? (
+				<div className="flex justify-center items-center py-20">
+					<p className="text-gray-600">Loading decks...</p>
+				</div>
+			) : filteredDecks && filteredDecks.length > 0 ? (
+				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+					{filteredDecks.map((deck) => (
+						<Card
+							key={deck.id}
+							onClick={() => handleDeckClick(deck.id)}
+							className="transition-shadow duration-300 hover:shadow-lg hover:border-blue-400 cursor-pointer"
+						>
+							<CardHeader className="p-4 pb-2">
+								<CardTitle className="text-lg font-semibold text-gray-800 truncate">
+									{deck.title}
+								</CardTitle>
+								<CardDescription className="text-sm text-blue-600 font-medium">
+									{deck.category}
+								</CardDescription>
+							</CardHeader>
+
+							<CardContent className="p-4 pt-0">
+								<p className="text-gray-500 text-sm line-clamp-2">
+									{deck.description || 'No description'}
+								</p>
+							</CardContent>
+
+							<CardFooter className="flex justify-between items-center p-4 pt-2 border-t bg-gray-50 rounded-b-lg">
+								<div className="flex items-center text-sm font-medium text-gray-700">
+									<Layers className="w-4 h-4 mr-1 text-gray-500" />
+									Click to view
+								</div>
+							</CardFooter>
+						</Card>
+					))}
+				</div>
+			) : (
+				<div className="flex flex-col items-center justify-center py-20">
+					<p className="text-gray-600 mb-4">
+						No decks found in this category
+					</p>
+					<Button
+						className="bg-blue-200 border border-blue-500 hover:bg-blue-300 text-black"
+						onClick={() => router.push('/decks/create')}
+					>
+						Create a Deck
+					</Button>
+				</div>
+			)}
+
+			{/* Dialog Menu */}
+			<Dialog
+				open={!!selectedDeckId}
+				onOpenChange={(open) => !open && setSelectedDeckId(null)}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>{selectedDeck?.title}</DialogTitle>
+						<DialogDescription>
+							{selectedDeck?.description || 'No description'}
+						</DialogDescription>
+					</DialogHeader>
+
+					<div className="space-y-3 mt-4">
+						<Button
+							onClick={handleGoToQuestions}
+							variant="outline"
+							className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white hover:text-gray-200"
+						>
+							<BookOpen className="w-4 h-4 mr-2" />
+							Study Questions
+						</Button>
+
+						<div className="flex items-center space-x-2 ml-1">
+							<Checkbox
+								id="includeOcclusions"
+								checked={includeOcclusions}
+								onCheckedChange={(checked) =>
+									setIncludeOcclusions(checked as boolean)
+								}
+							/>
+							<label
+								htmlFor="includeOcclusions"
+								className="text-sm font-medium leading-none cursor-pointer"
+							>
+								Include Image Occlusions
+							</label>
+						</div>
+
+						<Button
+							onClick={handleGoToFlashcards}
+							className="w-full justify-start bg-blue-600 hover:bg-blue-700"
+						>
+							<CreditCard className="w-4 h-4 mr-2" />
+							Study Flashcards
+						</Button>
+					</div>
+				</DialogContent>
+			</Dialog>
+		</div>
+	);
+}
