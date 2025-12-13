@@ -37,9 +37,11 @@ import {
 	BookOpen,
 	CreditCard,
 	Image as ImageIcon,
+	Trash2,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { GoogleSession } from '@/types';
 
 export default function DeckPage() {
@@ -55,6 +57,7 @@ export default function DeckPage() {
 
 	const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [includeOcclusions, setIncludeOcclusions] = useState(true);
 
 	const selectedDeck = decks?.find((d) => d.id === selectedDeckId);
 
@@ -74,7 +77,13 @@ export default function DeckPage() {
 
 	const handleGoToQuestions = () => {
 		if (selectedDeckId) {
-			router.push(`/decks/question/${selectedDeckId}`);
+			const params = new URLSearchParams();
+			if (includeOcclusions) {
+				params.set('occlusions', 'true');
+			}
+			router.push(
+				`/decks/question/${selectedDeckId}?${params.toString()}`
+			);
 		}
 	};
 
@@ -216,14 +225,31 @@ export default function DeckPage() {
 							Edit Deck
 						</Button>
 
-						<Button
-							onClick={handleGoToQuestions}
-							variant="outline"
-							className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white hover:text-gray-200"
-						>
-							<BookOpen className="w-4 h-4 mr-2" />
-							Study Questions
-						</Button>
+						<div className="space-y-2">
+							<Button
+								onClick={handleGoToQuestions}
+								variant="outline"
+								className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white hover:text-gray-200"
+							>
+								<BookOpen className="w-4 h-4 mr-2" />
+								Study Questions
+							</Button>
+							<div className="flex items-center space-x-2 ml-6">
+								<Checkbox
+									id="includeOcclusions"
+									checked={includeOcclusions}
+									onCheckedChange={(checked) =>
+										setIncludeOcclusions(checked as boolean)
+									}
+								/>
+								<label
+									htmlFor="includeOcclusions"
+									className="text-sm text-gray-600 cursor-pointer"
+								>
+									Include Image Occlusions
+								</label>
+							</div>
+						</div>
 
 						<Button
 							onClick={handleGoToFlashcards}
@@ -249,7 +275,7 @@ export default function DeckPage() {
 							variant="outline"
 							className="w-full justify-start bg-red-500 hover:bg-red-600 text-white"
 						>
-							<Edit className="w-4 h-4 mr-2" />
+							<Trash2 className="w-4 h-4 mr-2" />
 							Delete Deck
 						</Button>
 					</div>

@@ -19,9 +19,10 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
-import { LayoutGrid, Layers, Edit, BookOpen, CreditCard } from 'lucide-react';
+import { LayoutGrid, Layers, BookOpen, CreditCard } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { GoogleSession } from '@/types';
 
 export default function DeckPage() {
@@ -32,6 +33,7 @@ export default function DeckPage() {
 
 	const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [includeOcclusions, setIncludeOcclusions] = useState(true);
 
 	const selectedDeck = decks?.find((d) => d.id === selectedDeckId);
 
@@ -45,7 +47,13 @@ export default function DeckPage() {
 
 	const handleGoToQuestions = () => {
 		if (selectedDeckId) {
-			router.push(`/decks/question/${selectedDeckId}`);
+			const params = new URLSearchParams();
+			if (includeOcclusions) {
+				params.set('occlusions', 'true');
+			}
+			router.push(
+				`/decks/question/${selectedDeckId}?${params.toString()}`
+			);
 		}
 	};
 
@@ -162,6 +170,22 @@ export default function DeckPage() {
 							<BookOpen className="w-4 h-4 mr-2" />
 							Study Questions
 						</Button>
+
+						<div className="flex items-center space-x-2 ml-1">
+							<Checkbox
+								id="includeOcclusions"
+								checked={includeOcclusions}
+								onCheckedChange={(checked) =>
+									setIncludeOcclusions(checked as boolean)
+								}
+							/>
+							<label
+								htmlFor="includeOcclusions"
+								className="text-sm font-medium leading-none cursor-pointer"
+							>
+								Include Image Occlusions
+							</label>
+						</div>
 
 						<Button
 							onClick={handleGoToFlashcards}

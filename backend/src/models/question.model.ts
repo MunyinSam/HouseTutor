@@ -140,6 +140,7 @@ export const getQuestionsByDeckId = async (deckId: number) => {
                        'id', sq.id,
                        'front', sq.front,
                        'back', sq.back,
+					   'explanation', sq.explanation,
                        'deckId', sq."deckId",
                        'parentId', sq."parentId"
                    )
