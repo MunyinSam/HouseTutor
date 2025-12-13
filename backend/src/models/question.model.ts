@@ -36,7 +36,7 @@ export const updateQuestion = async (
 
 	// Build dynamic update query
 	const updates: string[] = [];
-	const values: any[] = [];
+	const values: unknown[] = [];
 	let paramCount = 1;
 
 	if (front !== undefined) {
