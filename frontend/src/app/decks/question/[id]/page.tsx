@@ -130,7 +130,7 @@ export default function QuestionPage() {
 			</header>
 			{/* --- */}
 			{/* Current Question Display */}
-			<div className="space-y-6">
+			<div className="space-y-6 px-10">
 				{questions && questions.length > 0 ? (
 					(() => {
 						const question = questions[currentQuestionIndex];
@@ -165,50 +165,58 @@ export default function QuestionPage() {
 										{question.imagePath && (
 											<div className="mb-4">
 												<img
-													src={`/api/images/questions/${question.imagePath.split('/').pop()}`}
+													src={`/api/images/questions/${question.imagePath
+														.split('/')
+														.pop()}`}
 													alt="Question"
 													className="max-w-full rounded border shadow-sm"
 												/>
 											</div>
 										)}
 										{/* Answer Input */}
-										<div className="flex gap-2">
-											<Input
-												placeholder="Type your answer..."
-												value={
-													mainAnswer?.userAnswer || ''
-												}
-												onChange={(e) =>
-													handleAnswerChange(
-														question.id,
-														e.target.value
-													)
-												}
-												disabled={
-													mainAnswer?.isSubmitted
-												}
-												className={
-													mainAnswer?.isSubmitted
-														? mainAnswer.isCorrect
-															? 'border-green-500 bg-green-50'
-															: 'border-red-500 bg-red-50'
-														: ''
-												}
-											/>
-											<Button
-												onClick={() =>
-													handleSubmitAnswer(
-														question.id,
-														question.back
-													)
-												}
-												disabled={
-													!mainAnswer?.userAnswer ||
-													mainAnswer?.isSubmitted
-												}
-											>
-												Check
-											</Button>
+										<div className="grid col-span-3 gap-2">
+											<div>
+												<Input
+													placeholder="Type your answer..."
+													value={
+														mainAnswer?.userAnswer ||
+														''
+													}
+													onChange={(e) =>
+														handleAnswerChange(
+															question.id,
+															e.target.value
+														)
+													}
+													disabled={
+														mainAnswer?.isSubmitted
+													}
+													className={
+														mainAnswer?.isSubmitted
+															? mainAnswer.isCorrect
+																? 'border-green-500 bg-green-50'
+																: 'border-red-500 bg-red-50'
+															: ''
+													}
+												/>
+											</div>
+											<div>
+												{' '}
+												<Button
+													onClick={() =>
+														handleSubmitAnswer(
+															question.id,
+															question.back
+														)
+													}
+													disabled={
+														!mainAnswer?.userAnswer ||
+														mainAnswer?.isSubmitted
+													}
+												>
+													Check
+												</Button>
+											</div>
 										</div>
 
 										{/* Result Indicator */}
@@ -247,6 +255,18 @@ export default function QuestionPage() {
 												<p className="text-gray-800 text-sm">
 													{question.back}
 												</p>
+												{question.explanation && (
+													<div>
+														<p className="mt-2 text-xs font-semibold text-green-700 mb-1">
+															Explanation:
+														</p>
+														<p className="text-gray-800 text-sm">
+															{
+																question.explanation
+															}
+														</p>
+													</div>
+												)}
 											</div>
 										)}
 									</CardContent>
@@ -300,56 +320,65 @@ export default function QuestionPage() {
 																{subQuestion.imagePath && (
 																	<div className="mb-4">
 																		<img
-																			src={`/api/images/questions/${subQuestion.imagePath.split('/').pop()}`}
+																			src={`/api/images/questions/${subQuestion.imagePath
+																				.split(
+																					'/'
+																				)
+																				.pop()}`}
 																			alt="Sub-question"
 																			className="max-w-md rounded border shadow-sm"
 																		/>
 																	</div>
 																)}
 																{/* Answer Input */}
-																<div className="flex gap-2">
-																	<Input
-																		placeholder="Type your answer..."
-																		value={
-																			subAnswer?.userAnswer ||
-																			''
-																		}
-																		onChange={(
-																			e
-																		) =>
-																			handleAnswerChange(
-																				subQuestion.id,
+																<div className="grid col-span-3 gap-2">
+																	<div>
+																		<Input
+																			placeholder="Type your answer..."
+																			value={
+																				subAnswer?.userAnswer ||
+																				''
+																			}
+																			onChange={(
 																				e
-																					.target
-																					.value
-																			)
-																		}
-																		disabled={
-																			subAnswer?.isSubmitted
-																		}
-																		className={
-																			subAnswer?.isSubmitted
-																				? subAnswer.isCorrect
-																					? 'border-green-500 bg-green-50'
-																					: 'border-red-500 bg-red-50'
-																				: ''
-																		}
-																	/>
-																	<Button
-																		onClick={() =>
-																			handleSubmitAnswer(
-																				subQuestion.id,
-																				subQuestion.back
-																			)
-																		}
-																		disabled={
-																			!subAnswer?.userAnswer ||
-																			subAnswer?.isSubmitted
-																		}
-																		size="sm"
-																	>
-																		Check
-																	</Button>
+																			) =>
+																				handleAnswerChange(
+																					subQuestion.id,
+																					e
+																						.target
+																						.value
+																				)
+																			}
+																			disabled={
+																				subAnswer?.isSubmitted
+																			}
+																			className={
+																				subAnswer?.isSubmitted
+																					? subAnswer.isCorrect
+																						? 'border-green-500 bg-green-50'
+																						: 'border-red-500 bg-red-50'
+																					: ''
+																			}
+																		/>
+																	</div>
+																	<div>
+																		{' '}
+																		<Button
+																			onClick={() =>
+																				handleSubmitAnswer(
+																					subQuestion.id,
+																					subQuestion.back
+																				)
+																			}
+																			disabled={
+																				!subAnswer?.userAnswer ||
+																				subAnswer?.isSubmitted
+																			}
+																			size="sm"
+																		>
+																			Check
+																		</Button>
+																	</div>
 																</div>
 
 																{/* Result Indicator */}

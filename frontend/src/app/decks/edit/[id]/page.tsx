@@ -122,7 +122,7 @@ export default function EditDeckPage() {
 
 	// Add a new sub-question field to edit dialog
 	const addNewSubQuestionField = () => {
-		setNewSubQuestions((prev) => [...prev, { front: '', back: '' }]);
+		setNewSubQuestions((prev) => [...prev, { front: '', back: '', explanation: '' }]);
 	};
 
 	// Remove a new sub-question field from edit dialog
@@ -133,7 +133,7 @@ export default function EditDeckPage() {
 	// Handle add sub-question changes (in add dialog)
 	const handleAddSubQuestionChange = (
 		index: number,
-		field: 'front' | 'back',
+		field: 'front' | 'back' | 'explanation',
 		value: string
 	) => {
 		setAddSubQuestions((prev) =>
@@ -145,7 +145,7 @@ export default function EditDeckPage() {
 
 	// Add a new sub-question field to add dialog
 	const addSubQuestionField = () => {
-		setAddSubQuestions((prev) => [...prev, { front: '', back: '' }]);
+		setAddSubQuestions((prev) => [...prev, { front: '', back: '', explanation: '' }]);
 	};
 
 	// Remove a sub-question field from add dialog
@@ -189,6 +189,7 @@ export default function EditDeckPage() {
 					await createQuestionMutation.mutateAsync({
 						front: newSubQ.front,
 						back: newSubQ.back,
+						explanation: newSubQ.explanation,
 						deckId: deckId,
 						parentId: selectedCard.id,
 					});
@@ -207,7 +208,7 @@ export default function EditDeckPage() {
 	const handleAddQuestion = async (e: React.FormEvent) => {
 		e.preventDefault();
 
-		if (!addFront.trim() || !addBack.trim() || !addExplanation.trim()) {
+		if (!addFront.trim() || !addBack.trim()) {
 			alert('Please fill in both front and back fields');
 			return;
 		}
