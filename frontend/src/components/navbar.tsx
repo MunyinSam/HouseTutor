@@ -55,9 +55,9 @@ export function Navbar() {
 						<Link href="/decks/create" className={linkClasses}>
 							Add
 						</Link>
-						<Link href="/search" className={linkClasses}>
+						{/* <Link href="/search" className={linkClasses}>
 							Search
-						</Link>
+						</Link> */}
 					</nav>
 				</div>
 

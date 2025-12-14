@@ -23,6 +23,7 @@ import { ArrowLeft, Layers, BookOpen, CreditCard } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DeckCreatorName } from './components/DeckCreatorName';
 
 export default function CategoryDecksPage() {
 	const router = useRouter();
@@ -135,6 +136,7 @@ export default function CategoryDecksPage() {
 								<p className="text-gray-500 text-sm line-clamp-2">
 									{deck.description || 'No description'}
 								</p>
+								<DeckCreatorName userId={deck.ownerId} />
 							</CardContent>
 
 							<CardFooter className="flex justify-between items-center p-4 pt-2 border-t bg-gray-50 rounded-b-lg">
@@ -174,29 +176,30 @@ export default function CategoryDecksPage() {
 					</DialogHeader>
 
 					<div className="space-y-3 mt-4">
-						<Button
-							onClick={handleGoToQuestions}
-							variant="outline"
-							className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white hover:text-gray-200"
-						>
-							<BookOpen className="w-4 h-4 mr-2" />
-							Study Questions
-						</Button>
-
-						<div className="flex items-center space-x-2 ml-1">
-							<Checkbox
-								id="includeOcclusions"
-								checked={includeOcclusions}
-								onCheckedChange={(checked) =>
-									setIncludeOcclusions(checked as boolean)
-								}
-							/>
-							<label
-								htmlFor="includeOcclusions"
-								className="text-sm font-medium leading-none cursor-pointer"
+						<div className="grid grid-cols-2">
+							<Button
+								onClick={handleGoToQuestions}
+								variant="outline"
+								className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white hover:text-gray-200"
 							>
-								Include Image Occlusions
-							</label>
+								<BookOpen className="w-4 h-4 mr-2" />
+								Study Questions
+							</Button>
+							<div className="flex items-center space-x-2 ml-1 justify-between px-3 bg-gray-50 rounded-lg border">
+								<Checkbox
+									id="includeOcclusions"
+									checked={includeOcclusions}
+									onCheckedChange={(checked) =>
+										setIncludeOcclusions(checked as boolean)
+									}
+								/>
+								<label
+									htmlFor="includeOcclusions"
+									className="text-sm text-gray-600 cursor-pointer"
+								>
+									Include Image Occlusions
+								</label>
+							</div>
 						</div>
 
 						<Button
