@@ -92,7 +92,7 @@ export function QuestionStudyCard({
 					)}
 
 					{/* Answer Input */}
-					<div className="grid col-span-3 gap-2">
+					<div className="grid grid-cols-4 gap-2">
 						<Input
 							placeholder="Type your answer... (press Enter to check)"
 							value={mainAnswer?.userAnswer || ''}
@@ -106,9 +106,9 @@ export function QuestionStudyCard({
 							className={
 								mainAnswer?.isSubmitted
 									? mainAnswer.isCorrect
-										? 'border-green-500 bg-green-50'
-										: 'border-red-500 bg-red-50'
-									: ''
+										? 'border-green-500 bg-green-50 col-span-2'
+										: 'border-red-500 bg-red-50 col-span-2'
+									: 'col-span-2'
 							}
 						/>
 						<Button
