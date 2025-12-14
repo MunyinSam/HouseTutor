@@ -148,58 +148,66 @@ export default function QuestionPage() {
 	// Global Enter key handler
 	useEffect(() => {
 		const handleGlobalKeyDown = (e: KeyboardEvent) => {
-			// Only handle Enter key
-			if (e.key !== 'Enter') return;
+			// 1. Check if the key is relevant
+			const isNavigationKey =
+				e.key === 'ArrowRight' || e.key === 'ArrowLeft';
+			const isActionKey = e.key === 'Enter';
 
-			// Don't handle if user is typing in a text input (let the input handle it)
+			if (!isNavigationKey && !isActionKey) {
+				return;
+			}
+
+			// 2. Prevent interference with active input/text areas
 			const activeElement = document.activeElement;
 			if (
 				activeElement?.tagName === 'INPUT' ||
 				activeElement?.tagName === 'TEXTAREA'
 			) {
+				// We don't interfere if the user is actively typing.
+				// NOTE: If Enter is pressed while typing, it will usually trigger form submission/new line in a textarea.
 				return;
 			}
 
+			// Prevent default browser action for the handled keys
 			e.preventDefault();
 
 			const currentItem = studyItems[currentIndex];
 			if (!currentItem) return;
 
-			// For occlusions, just go to next
-			if (currentItem.type === 'occlusion') {
+			// --- Navigation (ArrowLeft/ArrowRight) ---
+			if (e.key === 'ArrowRight') {
 				if (currentIndex < studyItems.length - 1) {
 					setCurrentIndex((prev) => prev + 1);
-					setTimeout(
-						() =>
-							cardRef.current?.scrollIntoView({
-								behavior: 'smooth',
-								block: 'start',
-							}),
-						100
-					);
+				}
+				return;
+			} else if (e.key === 'ArrowLeft') {
+				if (currentIndex > 0) {
+					setCurrentIndex((prev) => prev - 1);
 				}
 				return;
 			}
 
-			// For questions
-			if (areAllSubmitted()) {
-				// All answered, go to next item
-				// if (currentIndex < studyItems.length - 1) {
-				// 	setCurrentIndex((prev) => prev + 1);
-				// 	setTimeout(
-				// 		() =>
-				// 			cardRef.current?.scrollIntoView({
-				// 				behavior: 'smooth',
-				// 				block: 'start',
-				// 			}),
-				// 		100
-				// 	);
-				// }
-			} else {
-				// Submit next unsubmitted question
-				const next = getNextUnsubmittedId();
-				if (next) {
-					handleSubmitAnswer(next.id, next.back);
+			// --- Submission/Next (Enter) ---
+			if (e.key === 'Enter') {
+				// Occlusions: Just go to the next item
+				if (currentItem.type === 'occlusion') {
+					if (currentIndex < studyItems.length - 1) {
+						setCurrentIndex((prev) => prev + 1);
+					}
+					return;
+				}
+
+				// Questions: Determine action based on submission status
+				if (areAllSubmitted()) {
+					// All answered, go to the next item
+					if (currentIndex < studyItems.length - 1) {
+						setCurrentIndex((prev) => prev + 1);
+					}
+				} else {
+					const next = getNextUnsubmittedId();
+					if (next) {
+						handleSubmitAnswer(next.id, next.back);
+					}
 				}
 			}
 		};

@@ -103,6 +103,7 @@ export const getDecksByCategory = async (category: string) => {
 	const queryText = `
         SELECT * FROM decks
         WHERE category = $1
+		AND public is TRUE
         ORDER BY "createdAt" DESC;
     `;
 
