@@ -22,6 +22,7 @@ import {
 	Upload,
 	Square,
 	MousePointer,
+	ClipboardPaste,
 } from 'lucide-react';
 import {
 	OcclusionRect,
@@ -50,6 +51,8 @@ export default function CreateOcclusionPage({ params }: PageProps) {
 	const [drawStart, setDrawStart] = useState({ x: 0, y: 0 });
 	const [tool, setTool] = useState<'select' | 'draw'>('draw');
 
+	const [isPasteActive, setIsPasteActive] = useState(false);
+
 	const { mutate: createOcclusion, isPending } = useCreateImageOcclusion();
 
 	// Load image when file is selected
@@ -66,7 +69,41 @@ export default function CreateOcclusionPage({ params }: PageProps) {
 		}
 	}, [imageFile]);
 
-	console.log('test 1');
+	useEffect(() => {
+		const handlePaste = (event: ClipboardEvent) => {
+			const clipboardItems = event.clipboardData?.items;
+			if (!clipboardItems) return;
+
+			for (let i = 0; i < clipboardItems.length; i++) {
+				const item = clipboardItems[i];
+				if (item.type.indexOf('image') !== -1 && item.kind === 'file') {
+					const blob = item.getAsFile();
+					if (blob) {
+						const now = new Date();
+						const fileName = `pasted-image-${now.getTime()}.png`;
+						const imageFile = new File([blob], fileName, {
+							type: blob.type || 'image/png',
+						});
+
+						// Set the image file just like the manual upload does
+						setImageFile(imageFile);
+						setIsPasteActive(false);
+
+						// Clear the file input if it has a value
+						if (fileInputRef.current) {
+							fileInputRef.current.value = '';
+						}
+
+						event.preventDefault();
+						break;
+					}
+				}
+			}
+		};
+
+		window.addEventListener('paste', handlePaste);
+		return () => window.removeEventListener('paste', handlePaste);
+	}, []);
 
 	// Draw canvas
 	useEffect(() => {
@@ -374,12 +411,39 @@ export default function CreateOcclusionPage({ params }: PageProps) {
 											? 'Change Image'
 											: 'Upload Image'}
 									</Button>
-									{imageFile && (
-										<p className="text-xs text-gray-500 mt-1 truncate">
-											{imageFile.name}
-										</p>
-									)}
+									<Button
+										variant={
+											isPasteActive
+												? 'default'
+												: 'outline'
+										}
+										type="button"
+										onClick={() =>
+											setIsPasteActive(!isPasteActive)
+										}
+										className={
+											isPasteActive
+												? 'bg-blue-600 animate-pulse'
+												: ''
+										}
+									>
+										<ClipboardPaste className="w-4 h-4 mr-2" />
+										{isPasteActive ? 'Paste Now' : 'Paste'}
+									</Button>
 								</div>
+
+								{isPasteActive && (
+									<p className="text-[10px] text-blue-600 mt-2 font-medium">
+										Press Ctrl+V (or Cmd+V) to paste an
+										image from your clipboard.
+									</p>
+								)}
+
+								{imageFile && (
+									<p className="text-xs text-gray-500 mt-2 truncate font-mono bg-gray-100 p-1 rounded">
+										{imageFile.name}
+									</p>
+								)}
 							</CardContent>
 						</Card>
 
