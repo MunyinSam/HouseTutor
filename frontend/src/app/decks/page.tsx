@@ -276,7 +276,7 @@ export default function DeckPage() {
 							<Button
 								onClick={handleGoToQuestions}
 								variant="outline"
-								className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white hover:text-gray-200"
+								className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white hover:text-black"
 							>
 								<BookOpen className="w-4 h-4 mr-2" />
 								Study Questions
@@ -300,7 +300,7 @@ export default function DeckPage() {
 
 						<Button
 							onClick={handleGoToFlashcards}
-							className="w-full justify-start bg-blue-600 hover:bg-blue-700"
+							className="w-full justify-start bg-blue-600 hover:bg-blue-700 hover:text-black"
 						>
 							<CreditCard className="w-4 h-4 mr-2" />
 							Study Flashcards
