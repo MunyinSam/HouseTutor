@@ -60,9 +60,9 @@ export default function DeckPage() {
 				</p>
 			</header>
 
-			<div className="flex justify-end mb-5">
+			<div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-start mb-5">
 				<Button
-					className="bg-blue-200 border border-blue-500 hover:bg-blue-300 text-black"
+					className="bg-blue-200 border border-blue-500 hover:bg-blue-300 text-black col-span-1"
 					onClick={() => router.push('/decks/create')}
 				>
 					Add Deck
